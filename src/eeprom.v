@@ -1,4 +1,4 @@
-// 65C832 FPGA Soft Processor
+// W65C832 FPGA Soft Processor
 //  Author: Michael Kohn
 //   Email: mike@mikekohn.net
 //     Web: https://www.mikekohn.net/

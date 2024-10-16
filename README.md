@@ -1,5 +1,5 @@
-Soft Core W65C832
-=================
+W65C832 In An FPGA
+==================
 
 This is a W65C832 (32 bit 6502) CPU implemented in an FPGA.
 
