@@ -1,0 +1,5 @@
+
+parameter SIZE_8  = 1;
+parameter SIZE_16 = 2;
+parameter SIZE_32 = 4;
+

@@ -1,0 +1,15 @@
+
+// Zero Page and Absolute are the same except for size.
+// Index X and Absolute X are the same except for size.
+parameter MODE_NONE       = 0;
+parameter MODE_IMMEDIATE  = 1;
+parameter MODE_ZP         = 2;
+parameter MODE_ABSOLUTE   = 2;
+parameter MODE_INDIRECT_X = 3;
+parameter MODE_INDIRECT_Y = 4;
+parameter MODE_INDEXED_X  = 5;
+parameter MODE_ABSOLUTE_X = 5;
+parameter MODE_ABSOLUTE_Y = 6;
+parameter MODE_A          = 7;
+parameter MODE_NONE       = 7;
+

@@ -1,0 +1,54 @@
+# iceFUN board.
+
+# Debug LEDs.
+set_io --warn-no-port leds[0]   C10
+set_io --warn-no-port leds[1]   A10
+set_io --warn-no-port leds[2]   D7
+set_io --warn-no-port leds[3]   D6
+set_io --warn-no-port leds[4]   A7
+set_io --warn-no-port leds[5]   C7
+set_io --warn-no-port leds[6]   A4
+set_io --warn-no-port leds[7]   C4
+set_io --warn-no-port column[0] A12
+set_io --warn-no-port column[1] D10
+set_io --warn-no-port column[2] A6
+set_io --warn-no-port column[3] C5
+
+# GPIO.
+set_io --warn-no-port ioport_0  C14
+set_io --warn-no-port ioport_1  G14
+set_io --warn-no-port ioport_2  H12
+set_io --warn-no-port ioport_3  J12
+set_io --warn-no-port ioport_4  K3
+
+# SPI eeprom.
+set_io --warn-no-port eeprom_cs  E12
+set_io --warn-no-port eeprom_clk E14
+set_io --warn-no-port eeprom_di  F12
+set_io --warn-no-port eeprom_do  F14
+
+# SPI peripheral 0.
+#set_io --warn-no-port spi_cs_0  J12
+set_io --warn-no-port spi_clk_0  K12
+set_io --warn-no-port spi_mosi_0 K14
+set_io --warn-no-port spi_miso_0 H11
+
+# SPI peripheral 1.
+#set_io --warn-no-port spi_cs_1  K3
+#set_io --warn-no-port spi_clk_1  G3
+#set_io --warn-no-port spi_mosi_1 H3
+#set_io --warn-no-port spi_miso_1 J3
+
+# Clock signal.
+set_io --warn-no-port raw_clk   P7
+
+# Speaker.
+set_io --warn-no-port speaker_p M12
+set_io --warn-no-port speaker_m M6
+
+# Buttons.
+set_io --warn-no-port button_reset A5
+set_io --warn-no-port button_halt A11
+set_io --warn-no-port button_program_select C6
+set_io --warn-no-port button_0 C11
+
