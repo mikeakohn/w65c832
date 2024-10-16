@@ -5,6 +5,8 @@ This is a W65C832 (32 bit 6502) CPU implemented in an FPGA.
 
 https://www.mikekohn.net/micro/w65c832_fpga.php
 
+Test code is assembled with the naken_asm assembler.
+
 Registers
 =========
 
