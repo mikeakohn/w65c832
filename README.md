@@ -14,9 +14,10 @@ Registers
 * X (8/16/32 bit index x)
 * Y (8/16/32 bit index y)
 
-Note: If M = 0, X = 1 which means A is 16 bit and X is 8 bit, using an
+Note: If A is in 16 bit mode and X is 8 bit mode, using an
 instruction such as TXA (transfer X to A) will only tranfer the lower 8
-bits of X to A clearing the top bits of A.
+bits of X to A clearing the top bits of A. Most other instructions
+will leave the upper bits of the registers alone.
 
 There's also
 * SP  (16 bit stack pointer)
@@ -28,6 +29,8 @@ There's also
 Flags (Status Register)
 =======================
 
+P = { N, V, M, X, D, I, Z, C }
+
 * N negative (set if bit 7 of the result is set)
 * V overflow
 * M
@@ -37,7 +40,7 @@ Flags (Status Register)
 * Z zero     (set if ALU result is 0)
 * C carry    (set if ALU result requires bit 8)
 
-Outside of the stutus register there is an E8 flag (added for 65C816)
+Outside of the status register there is an E8 flag (added for 65C816)
 and a new E16 flag (added for 65C832).
 
 Overflow is set if adding two positives comes out negative or adding
