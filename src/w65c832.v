@@ -15,10 +15,16 @@ module w65c832
   output [7:0] leds,
   output [3:0] column,
   input raw_clk,
-  output eeprom_cs,
-  output eeprom_clk,
-  output eeprom_di,
-  input  eeprom_do,
+  //output eeprom_cs,
+  //output eeprom_clk,
+  //output eeprom_di,
+  //input  eeprom_do,
+  output windbond_reset,
+  output windbond_wp,
+  output windbond_do,
+  input  windbond_di,
+  output windbond_clk,
+  output windbond_cs,
   output speaker_p,
   output speaker_m,
   output ioport_0,
@@ -43,11 +49,13 @@ assign leds = leds_value;
 assign column = column_value;
 
 // Memory bus (ROM, RAM, peripherals).
-reg [15:0] mem_address = 0;
+reg [23:0] mem_address = 0;
 reg [7:0]  mem_write = 0;
 wire [7:0] mem_read;
-reg mem_bus_enable = 0;
 reg mem_write_enable = 0;
+reg mem_bus_enable = 0;
+reg mem_bus_reset = 1;
+wire mem_bus_halted;
 
 // Clock.
 reg [21:0] count = 0;
@@ -446,7 +454,7 @@ always @(posedge clk) begin
     state <= STATE_RESET;
   else if (!button_halt)
     state <= STATE_HALTED;
-  else
+  else if (mem_bus_halted == 0)
     case (state)
       STATE_RESET:
         begin
@@ -461,8 +469,9 @@ always @(posedge clk) begin
           flags[FLAG_C]   <= 0;
           flags[FLAG_Z]   <= 0;
           mem_address <= 0;
-          mem_bus_enable <= 0;
           mem_write_enable <= 0;
+          mem_bus_enable <= 0;
+          mem_bus_reset <= 1;
           delay_loop <= 12000;
           eeprom_strobe <= 0;
           reg_a <= 0;
@@ -479,14 +488,17 @@ always @(posedge clk) begin
         begin
           // This is probably not needed. The chip starts up fine without it.
           if (delay_loop == 0) begin
+            mem_bus_reset <= 0;
+
             // If button is not pushed, start rom.v code otherwise use EEPROM.
             if (button_program_select) begin
               pc <= 16'h4000;
-              state <= STATE_FETCH_OP_0;
             end else begin
-              pc <= 0;
-              state <= STATE_EEPROM_START;
+              pc <= 16'hc000;
+              //state <= STATE_EEPROM_START;
             end
+
+            state <= STATE_FETCH_OP_0;
           end
 
           delay_loop <= delay_loop - 1;
@@ -508,7 +520,7 @@ always @(posedge clk) begin
           wb_state <= STATE_WRITEBACK_A;
           long_branch <= 0;
           branch_offset <= 0;
-          mem_address <= pc;
+          mem_address <= { pbr, pc };
           mem_bus_enable <= 1;
           state <= STATE_FETCH_OP_1;
         end
@@ -882,7 +894,7 @@ always @(posedge clk) begin
         end
       STATE_FETCH_INDIRECT_0:
         begin
-          mem_address <= pc;
+          mem_address <= { pbr, pc };
           mem_bus_enable <= 1;
           pc <= pc + 1;
           state <= STATE_FETCH_INDIRECT_1;
@@ -906,7 +918,8 @@ always @(posedge clk) begin
         begin
           if (is_emulation_8 == 0) ea[23:16] <= dbr;
 
-          mem_address <= ea_indirect;
+          // FIXME: Is dbr correct here?
+          mem_address <= { dbr, ea_indirect };
           ea_indirect <= ea_indirect + 1;
           mem_bus_enable <= 1;
           state <= STATE_FETCH_INDIRECT_3;
@@ -947,7 +960,7 @@ always @(posedge clk) begin
               is_emulation_8 == 0)
             ea[23:16] <= dbr;
 
-          mem_address <= pc;
+          mem_address <= { pbr, pc };
           mem_bus_enable <= 1;
           pc <= pc + 1;
           absolute_count <= absolute_count + 1;
@@ -1321,7 +1334,7 @@ always @(posedge clk) begin
             endcase
 
           pc <= pc + 1;
-          mem_address <= pc;
+          mem_address <= { pbr, pc };
           mem_bus_enable <= 1;
           state <= STATE_BRANCH_1;
         end
@@ -1345,7 +1358,7 @@ always @(posedge clk) begin
         end
       STATE_SET_FLAGS_0:
         begin
-          mem_address <= pc;
+          mem_address <= { pbr, pc };
           mem_bus_enable <= 1;
           pc <= pc + 1;
           state <= STATE_SET_FLAGS_1;
@@ -1484,7 +1497,7 @@ always @(posedge clk) begin
         end
       STATE_CALC_PEI_0:
         begin
-          mem_address <= pc;
+          mem_address <= { pbr, pc };
           mem_bus_enable <= 1;
           pc <= pc + 1;
           state <= STATE_CALC_PEI_1;
@@ -1527,7 +1540,7 @@ always @(posedge clk) begin
       STATE_MOVE_BLOCK_0:
         begin
           mem_bus_enable <= 1;
-          mem_address <= pc;
+          mem_address <= { pbr, pc };
           pc <= pc + 1;
           state <= STATE_MOVE_BLOCK_1;
         end
@@ -1624,7 +1637,7 @@ always @(posedge clk) begin
         end
       STATE_JMP_ABS_0:
         begin
-          mem_address <= pc;
+          mem_address <= { pbr, pc };
           mem_bus_enable <= 1;
           pc <= pc + 1;
           state <= STATE_JMP_ABS_1;
@@ -1654,7 +1667,8 @@ always @(posedge clk) begin
         end
       STATE_JMP_ABS_2:
         begin
-          mem_address <= ea_indirect;
+          // FIXME: Is "pbr" correct here?
+          mem_address <= { pbr, ea_indirect };
           mem_bus_enable <= 1;
           ea_indirect <= ea_indirect + 1;
           state <= STATE_JMP_ABS_3;
@@ -1681,6 +1695,7 @@ always @(posedge clk) begin
 
           mem_bus_enable <= 0;
         end
+/*
       STATE_EEPROM_START:
         begin
           // Initialize values for reading from SPI-like EEPROM.
@@ -1724,6 +1739,7 @@ always @(posedge clk) begin
           else
             state <= STATE_EEPROM_READ;
         end
+*/
       STATE_ERROR:
         begin
           state <= STATE_ERROR;
@@ -1746,26 +1762,33 @@ always @(posedge clk) begin
 end
 
 memory_bus memory_bus_0(
-  .address      (mem_address),
-  .data_in      (mem_write),
-  .data_out     (mem_read),
-  .bus_enable   (mem_bus_enable),
-  .write_enable (mem_write_enable),
-  .clk          (clk),
-  .raw_clk      (raw_clk),
-  .speaker_p    (speaker_p),
-  .speaker_m    (speaker_m),
-  .ioport_0     (ioport_0),
-  .ioport_0     (ioport_0),
-  .ioport_1     (ioport_1),
-  .ioport_2     (ioport_2),
-  .ioport_3     (ioport_3),
-  .ioport_4     (ioport_4),
-  .button_0     (button_0),
-  .reset        (~button_reset),
-  .spi_clk_0    (spi_clk_0),
-  .spi_mosi_0   (spi_mosi_0),
-  .spi_miso_0   (spi_miso_0)
+  .address        (mem_address),
+  .data_in        (mem_write),
+  .data_out       (mem_read),
+  .bus_enable     (mem_bus_enable),
+  .write_enable   (mem_write_enable),
+  .bus_halt       (mem_bus_halted),
+  .clk            (clk),
+  .raw_clk        (raw_clk),
+  .speaker_p      (speaker_p),
+  .speaker_m      (speaker_m),
+  .ioport_0       (ioport_0),
+  .ioport_0       (ioport_0),
+  .ioport_1       (ioport_1),
+  .ioport_2       (ioport_2),
+  .ioport_3       (ioport_3),
+  .ioport_4       (ioport_4),
+  .button_0       (button_0),
+  .spi_clk_0      (spi_clk_0),
+  .spi_mosi_0     (spi_mosi_0),
+  .spi_miso_0     (spi_miso_0),
+  .windbond_reset (windbond_reset),
+  .windbond_wp    (windbond_wp),
+  .windbond_do    (windbond_do),
+  .windbond_di    (windbond_di),
+  .windbond_clk   (windbond_clk),
+  .windbond_cs    (windbond_cs),
+  .reset          (mem_bus_reset)
 );
 
 addressing_mode addressing_mode_0
@@ -1787,6 +1810,7 @@ reg_mode reg_mode_0
   .size_x (size_x)
 );
 
+/*
 eeprom eeprom_0
 (
   .address    (eeprom_address),
@@ -1799,6 +1823,7 @@ eeprom eeprom_0
   .ready      (eeprom_ready),
   .data_out   (eeprom_data_out)
 );
+*/
 
 endmodule
 

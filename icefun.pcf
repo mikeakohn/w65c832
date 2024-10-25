@@ -22,10 +22,18 @@ set_io --warn-no-port ioport_3  J12
 set_io --warn-no-port ioport_4  K3
 
 # SPI eeprom.
-set_io --warn-no-port eeprom_cs  E12
-set_io --warn-no-port eeprom_clk E14
-set_io --warn-no-port eeprom_di  F12
-set_io --warn-no-port eeprom_do  F14
+#set_io --warn-no-port eeprom_cs  E12
+#set_io --warn-no-port eeprom_clk E14
+#set_io --warn-no-port eeprom_di  F12
+#set_io --warn-no-port eeprom_do  F14
+
+# Windbond W25Q128JV 16MB flash memory.
+set_io --warn-no-port windbond_reset P3
+set_io --warn-no-port windbond_wp    P2
+set_io --warn-no-port windbond_do    P1
+set_io --warn-no-port windbond_di    N1
+set_io --warn-no-port windbond_clk   M1
+set_io --warn-no-port windbond_cs    L1
 
 # SPI peripheral 0.
 #set_io --warn-no-port spi_cs_0  J12

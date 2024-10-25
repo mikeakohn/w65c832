@@ -337,21 +337,26 @@ cc = 11
 Memory Map
 ----------
 
-This implementation of the Intel 8008 has 4 banks of memory.
+This implementation of the W65C832 has 3 banks of memory. If there is
+a Winbond W25Q128JV, Bank 3 and all memory above up to 16MB will be
+paged in (and out) of RAM 4k at a time.
 
 * Bank 0: RAM (256 bytes)
 * Bank 1: ROM (An LED blink program from blink.asm)
 * Bank 2: Peripherals
-* Bank 3: Empty
+* Bank 3: Wondbond W25Q128JV Flash (filling up to 16MB).
 
-On start-up by default, the chip will load a program from a AT93C86A
-2kB EEPROM with a 3-Wire (SPI-like) interface but wll run the code
-from the ROM. To start the program loaded to RAM, the program select
-button needs to be held down while the chip is resetting.
+On start up the chip will execute code from Bank 1. If the program
+select button is pushed on reset code will start from location 0xc000
+in Bank 3.
 
 The peripherals area contain the following:
 
 * 0x8000: input from push button
+* 0x8001: SPI TX
+* 0x8002: SPI RX
+* 0x8003: SPI CTRL
 * 0x8008: ioport0 output (in my test case only 1 pin is connected)
 * 0x8009: MIDI note value (60-96) to play a tone on the speaker or 0 to stop
+* 0x800a: iport1
 

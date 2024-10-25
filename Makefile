@@ -2,7 +2,7 @@
 PROGRAM=w65c832
 SOURCE= \
   src/$(PROGRAM).v \
-  src/eeprom.v \
+  src/flash_rom.v \
   src/memory_bus.v \
   src/peripherals.v \
   src/addressing_mode.v \
