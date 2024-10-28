@@ -17,7 +17,7 @@ module memory_bus
 (
   input [23:0] address,
   input  [7:0] data_in,
-  output [7:0] data_out,
+  output reg [7:0] data_out,
   input  bus_enable,
   input  write_enable,
   output bus_halt,
@@ -36,8 +36,8 @@ module memory_bus
   input  spi_miso_0,
   output windbond_reset,
   output windbond_wp,
-  output windbond_do,
-  input  windbond_di,
+  output windbond_di,
+  input  windbond_do,
   output windbond_clk,
   output windbond_cs,
   input  reset
@@ -52,7 +52,9 @@ wire [7:0] flash_rom_data_out;
 //reg [7:0] ram_data_in;
 //reg [7:0] peripherals_data_in;
 
+wire [1:0] bank;
 wire [7:0] upper_page;
+assign bank = address[15:14];
 assign upper_page = address[23:16];
 
 wire ram_write_enable;
@@ -60,24 +62,39 @@ wire peripherals_write_enable;
 //wire block_ram_write_enable;
 wire flash_rom_enable;
 
-assign ram_write_enable         = (address[15:14] == 2'b00 && upper_page == 0) && write_enable;
-assign peripherals_write_enable = (address[15:14] == 2'b10 && upper_page == 0) && write_enable;
-//assign block_ram_write_enable   = (address[15:14] == 2'b11) && write_enable;
+assign ram_write_enable         = (bank == 0 && upper_page == 0) && write_enable;
+assign peripherals_write_enable = (bank == 2 && upper_page == 0) && write_enable;
+//assign block_ram_write_enable   = (bank == 3) && write_enable;
 
-assign flash_rom_enable = address[15:14] == 2'b11 || upper_page != 0;
+// FIXME: bus_enable really should be true here.
+assign flash_rom_enable = (bank == 3 || upper_page != 0) && bus_enable;
+//assign flash_rom_enable = (bank == 3 || upper_page != 0);
 
 // FIXME: The RAM probably need an enable also.
 wire peripherals_enable;
-assign peripherals_enable = (address[15:14] == 2'b10 && upper_page == 0) && bus_enable;
+assign peripherals_enable = (bank == 2 && upper_page == 0) && bus_enable;
 
+// FIXME: This probably shouldn't depend on flash_rom being enabled.
 wire flash_rom_busy;
 assign bus_halt = flash_rom_enable && flash_rom_busy;
 
 // Based on the selected bank of memory (address[14:13]) select if
 // memory should read from ram.v, rom.v, peripherals.v.
-assign data_out = address[15] == 0 ?
-  (address[14] == 0 ? ram_data_out         : rom_data_out) :
-  (address[14] == 0 ? peripherals_data_out : flash_rom_data_out);
+//assign data_out = address[15] == 0 ?
+//  (address[14] == 0 ? ram_data_out         : rom_data_out) :
+//  (address[14] == 0 ? peripherals_data_out : flash_rom_data_out);
+
+always @ * begin
+  if (bank == 3 || upper_page != 0) begin
+    data_out = flash_rom_data_out;
+  end else if (bank == 0) begin
+    data_out = ram_data_out;
+  end else if (bank == 1) begin
+    data_out = rom_data_out;
+  end else if (bank == 2) begin
+    data_out = peripherals_data_out;
+  end
+end
 
 ram ram_0(
   .address      (address[11:0]),
@@ -126,14 +143,15 @@ ram ram_1(
 */
 
 flash_rom flash_rom_0(
-  .page        (address[23:12]),
-  .address     (address[11:0]),
+  //.page        (address[23:12]),
+  //.address     (address[11:0]),
+  .address     (address[23:0]),
   .data_out    (flash_rom_data_out),
   .busy        (flash_rom_busy), 
   .spi_cs      (windbond_cs),
   .spi_clk     (windbond_clk),
-  .spi_do      (windbond_do),
-  .spi_di      (windbond_di),
+  .spi_do      (windbond_di),
+  .spi_di      (windbond_do),
   .enable      (flash_rom_enable),
   .flash_reset (windbond_reset),
   .flash_wp    (windbond_wp),

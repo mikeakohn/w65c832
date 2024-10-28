@@ -21,8 +21,8 @@ module w65c832
   //input  eeprom_do,
   output windbond_reset,
   output windbond_wp,
-  output windbond_do,
-  input  windbond_di,
+  output windbond_di,
+  input  windbond_do,
   output windbond_clk,
   output windbond_cs,
   output speaker_p,
@@ -56,6 +56,9 @@ reg mem_write_enable = 0;
 reg mem_bus_enable = 0;
 reg mem_bus_reset = 1;
 wire mem_bus_halted;
+
+// FIXME: Can remove this later.
+//reg was_ever_halted = 0;
 
 // Clock.
 reg [21:0] count = 0;
@@ -431,7 +434,7 @@ always @(posedge raw_clk) begin
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_x[7:0]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~result[23:16]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~sp[7:0];   end
-    3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_a[15:8]; end
+    //3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_a[15:8]; end
     //3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_a[31:24]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_x[7:0];   end
     //3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_x[15:8]; end
@@ -441,7 +444,7 @@ always @(posedge raw_clk) begin
     //3'b010:  begin column_value <= 4'b1011; leds_value <= ~flags[7:0];   end
     //3'b010:  begin column_value <= 4'b1011; leds_value <= ~pc[15:8];   end
     //3'b010:  begin column_value <= 4'b1011; leds_value <= ~{ flag_e16, flag_e8, size_x };   end
-    //3'b100:  begin column_value <= 4'b1101; leds_value <= ~size_setting; end
+    //3'b010:  begin column_value <= 4'b1011; leds_value <= ~{ was_ever_halted };   end
     3'b100:  begin column_value <= 4'b1101; leds_value <= ~pc[7:0]; end
     3'b110:  begin column_value <= 4'b1110; leds_value <= ~state;   end
     default: begin column_value <= 4'b1111; leds_value <= 8'hff;    end
@@ -450,6 +453,8 @@ end
 
 // This block is the main CPU instruction execute state machine.
 always @(posedge clk) begin
+  //if (mem_bus_halted) was_ever_halted <= 1;
+
   if (!button_reset)
     state <= STATE_RESET;
   else if (!button_halt)
@@ -483,6 +488,7 @@ always @(posedge clk) begin
           sp <= 16'h1ff;
           bank <= 0;
           state <= STATE_DELAY_LOOP;
+          //was_ever_halted <= 0;
         end
       STATE_DELAY_LOOP:
         begin
