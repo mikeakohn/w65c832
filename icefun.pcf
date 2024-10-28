@@ -28,6 +28,8 @@ set_io --warn-no-port ioport_4  K3
 #set_io --warn-no-port eeprom_do  F14
 
 # Windbond W25Q128JV 16MB flash memory.
+# do connects to do pin on flash chip and is an input to the w65c832.
+# di connects to di pin on flash chip and is an output from the w65c832.
 set_io --warn-no-port windbond_reset P3
 set_io --warn-no-port windbond_wp    P2
 set_io --warn-no-port windbond_do    P1
