@@ -76,7 +76,8 @@ assign clk = clock_div[1];
 // A, X, Y.
 // Stack Pointer.
 // Direct Register.
-// Data Bank.
+// Program Bank Register pbr (also called K).
+// Data Bank Register dbr.
 reg [31:0] reg_a;
 reg [31:0] reg_x;
 reg [31:0] reg_y;
@@ -429,12 +430,13 @@ end
 // Debug: This block simply drives the 8x4 LEDs.
 always @(posedge raw_clk) begin
   case (count[9:7])
+    //3'b000:  begin column_value <= 4'b0111; leds_value <= ~dbr[7:0];   end
     3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_a[7:0]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_a[23:16]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_x[7:0]; end
-    //3'b000:  begin column_value <= 4'b0111; leds_value <= ~result[23:16]; end
+    //3'b000:  begin column_value <= 4'b0111; leds_value <= ~ea[23:16]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~sp[7:0];   end
-    //3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_a[15:8]; end
+    3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_a[15:8]; end
     //3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_a[31:24]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_x[7:0];   end
     //3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_x[15:8]; end
@@ -820,7 +822,7 @@ always @(posedge clk) begin
                     case (aaa)
                       OP_PHD: begin state <= STATE_PUSH_0; result <= dr; end
                       OP_PLD: state <= STATE_POP_0;
-                      OP_PHK: begin state <= STATE_PUSH_0; result <= dbr; end
+                      OP_PHK: begin state <= STATE_PUSH_0; result <= pbr; end
                       OP_RTL: state <= STATE_POP_0;
                       OP_PHB:
                         begin state <= STATE_PUSH_0; result <= reg_a[15:7]; end
@@ -924,7 +926,7 @@ always @(posedge clk) begin
         begin
           if (is_emulation_8 == 0) ea[23:16] <= dbr;
 
-          // FIXME: Is dbr correct here?
+          // FIXME: Is this correct?
           mem_address <= { dbr, ea_indirect };
           ea_indirect <= ea_indirect + 1;
           mem_bus_enable <= 1;
@@ -961,10 +963,13 @@ always @(posedge clk) begin
         end
       STATE_FETCH_ABSOLUTE_0:
         begin
-          if (addressing_mode != MODE_ZP &&
-              size_m != 1 &&
-              is_emulation_8 == 0)
+          // MODE_ZP and MODE_ABSOLUTE are the same, the difference is
+          // ea_size.
+          if (addressing_mode == MODE_ZP &&
+              absolute_count != 1 &&
+              is_emulation_8 == 0) begin
             ea[23:16] <= dbr;
+          end
 
           mem_address <= { pbr, pc };
           mem_bus_enable <= 1;
@@ -1453,8 +1458,6 @@ always @(posedge clk) begin
                         SIZE_16: reg_a[15:0] <= source[15:0];
                         SIZE_32: reg_a[31:0] <= source[31:0];
                       endcase
-                    OP_PLD: dr <= source;
-                    OP_PLB: dbr <= source;
                   endcase
                 3'b110:
                   case (aaa)
@@ -1477,6 +1480,8 @@ always @(posedge clk) begin
                 3'b010:
                   case (aaa)
                     OP_RTL: { pbr, pc } <= source[23:0];
+                    OP_PLD: dr <= source;
+                    OP_PLB: dbr <= source;
                   endcase
               endcase
           endcase

@@ -19,12 +19,19 @@ start:
 
 main:
   ;lda 0xc000
-  lda 0xc005
-  lda.b #1
+  ;lda 0xc005
+  lda.b #2
   pha
   ;pld
   plb
   ;lda 0xc001
+
+  lda.b #1
+  sta 0x0000
+
+  lda.b #0
+  pha
+  plb
   lda 0x0000
 
   brk
