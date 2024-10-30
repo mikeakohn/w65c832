@@ -341,8 +341,8 @@ This implementation of the W65C832 has 3 banks of memory. If there is
 a Winbond W25Q128JV, Bank 3 and all memory above up to 16MB will be
 paged in (and out) of RAM 4k at a time.
 
-* Bank 0: RAM (256 bytes)
-* Bank 1: ROM (An LED blink program from blink.asm)
+* Bank 0: RAM (4096 bytes)
+* Bank 1: ROM (4096 bytes from rom.txt)
 * Bank 2: Peripherals
 * Bank 3: Wondbond W25Q128JV Flash (filling up to 16MB).
 
