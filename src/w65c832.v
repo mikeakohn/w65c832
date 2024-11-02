@@ -631,7 +631,7 @@ always @(posedge clk) begin
                   2'b11: flags[FLAG_D] <= aaa[0];
                 endcase
 
-                state <= aaa == 3'b100 ? STATE_WRITEBACK_Y : STATE_FETCH_OP_0;
+                state <= aaa == OP_TYA ? STATE_WRITEBACK_Y : STATE_FETCH_OP_0;
               end else if (bbb == 3'b111) begin
                 if (aaa == OP_JMPL) begin
                   ea <= { pbr, pc };

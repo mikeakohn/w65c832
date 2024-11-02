@@ -337,7 +337,7 @@ cc = 11
 Memory Map
 ----------
 
-This implementation of the W65C832 has 3 banks of memory. If there is
+This implementation of the W65C832 has 4 banks of memory. If there is
 a Winbond W25Q128JV, Bank 3 and all memory above up to 16MB will be
 paged in (and out) of RAM 4k at a time.
 
