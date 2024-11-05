@@ -126,6 +126,8 @@ reg [31:0] temp;
 reg [32:0] result;
 reg wb;
 reg is_sub;
+reg affects_c;
+reg affects_v;
 
 // Used for MVP, MVN.
 reg [7:0] block_source;
@@ -524,6 +526,8 @@ always @(posedge clk) begin
           ea_indirect <= 0;
           size_imm <= size_m;
           is_sub <= 0;
+          affects_v <= 0;
+          affects_c <= 0;
           wb <= 1;
           wb_state <= STATE_WRITEBACK_A;
           long_branch <= 0;
@@ -1049,6 +1053,7 @@ always @(posedge clk) begin
             endcase
 
             wb <= 0;
+            affects_v <= 1;
           end else if (aaa == OP_CPY || aaa == OP_LDY || aaa == OP_STY) begin
             case (size_x)
               SIZE_8:  temp <= { 24'b0, reg_y[7:0]  };
@@ -1079,13 +1084,13 @@ always @(posedge clk) begin
       STATE_EXECUTE_00_1:
         begin
           case (aaa)
-            OP_BIT: begin result <= temp & source; wb <= 0; end
+            OP_BIT:begin result <= temp & source; wb <= 0; end
             //OP_JMP: result <= temp & source;
             //OP_JMP_IND: result <= temp ^ source;
             OP_STY: result <= temp;
             OP_LDY: result <= source;
-            OP_CPY: begin result <= temp - source; wb <= 0; end
-            OP_CPX: begin result <= temp - source; wb <= 0; end
+            OP_CPY: begin result <= temp - source; wb <= 0; affects_c <= 1; end
+            OP_CPX: begin result <= temp - source; wb <= 0; affects_c <= 1; end
           endcase
 
           if (aaa == OP_STY) begin
@@ -1111,7 +1116,12 @@ always @(posedge clk) begin
             OP_ORA: result <= temp | source;
             OP_AND: result <= temp & source;
             OP_EOR: result <= temp ^ source;
-            OP_ADC: result <= temp + source + flag_c;
+            OP_ADC:
+              begin
+                result <= temp + source + flag_c;
+                affects_c <= 1;
+                affects_v <= 1;
+              end
             OP_STA:
               if (bbb == 3'b010) begin
                 // OP_BIT_IMM: bit #imm
@@ -1121,8 +1131,20 @@ always @(posedge clk) begin
                 result <= temp;
               end
             OP_LDA: result <= source;
-            OP_CMP: begin result <= temp - source; wb <= 0; is_sub <= 1; end
-            OP_SBC: begin result <= temp - source - 1 + flag_c; is_sub <= 1; end
+            OP_CMP:
+              begin
+                result <= temp - source;
+                wb <= 0;
+                is_sub <= 1;
+                affects_c <= 1;
+              end
+            OP_SBC:
+              begin
+                result <= temp - source - 1 + flag_c;
+                is_sub <= 1;
+                affects_c <= 1;
+                affects_v <= 1;
+              end
           endcase
 
           // wb_state should always be STATE_WRITEBACK_A.
@@ -1184,6 +1206,9 @@ always @(posedge clk) begin
             OP_INC: result <= source + 1;
           endcase
 
+          // For ASL, ROL, LSR, ROR - the C flag is affected.
+          if (aaa[2] == 0) affects_c <= 1;
+
           if (aaa == OP_STX) begin
             size_imm <= size_x;
             state <= STATE_WRITEBACK_MEM_0;
@@ -1200,26 +1225,26 @@ always @(posedge clk) begin
             SIZE_8:
               begin
                 if (wb == 1) reg_a[7:0] <= result[7:0];
-                flags[FLAG_C] <= result[8];
+                if (affects_c) flags[FLAG_C] <= result[8];
                 flags[FLAG_Z] <= result[7:0] == 0;
                 flags[FLAG_N] <= result[7];
-                flags[FLAG_V] <= temp[7] == (source[7] ^ is_sub) && result[7] != temp[7];
+                if (affects_v) flags[FLAG_V] <= temp[7] == (source[7] ^ is_sub) && result[7] != temp[7];
               end
             SIZE_16:
               begin
                 if (wb == 1) reg_a[15:0] <= result[15:0];
-                flags[FLAG_C] <= result[16];
+                if (affects_c) flags[FLAG_C] <= result[16];
                 flags[FLAG_Z] <= result[15:0] == 0;
                 flags[FLAG_N] <= result[15];
-                flags[FLAG_V] <= temp[15] == (source[15] ^ is_sub) && result[15] != temp[15];
+                if (affects_v) flags[FLAG_V] <= temp[15] == (source[15] ^ is_sub) && result[15] != temp[15];
               end
             SIZE_32:
               begin
                 if (wb == 1) reg_a[31:0] <= result[31:0];
-                flags[FLAG_C] <= result[32];
+                if (affects_c) flags[FLAG_C] <= result[32];
                 flags[FLAG_Z] <= result[31:0] == 0;
                 flags[FLAG_N] <= result[31];
-                flags[FLAG_V] <= temp[31] == (source[31] ^ is_sub) && result[31] != temp[31];
+                if (affects_v) flags[FLAG_V] <= temp[31] == (source[31] ^ is_sub) && result[31] != temp[31];
               end
           endcase
 
@@ -1280,24 +1305,24 @@ always @(posedge clk) begin
           case (size_m)
             SIZE_8:
               begin
-                flags[FLAG_C] <= result[8];
+                if (affects_c) flags[FLAG_C] <= result[8];
                 flags[FLAG_Z] <= result[7:0] == 0;
                 flags[FLAG_N] <= result[7];
-                flags[FLAG_V] <= temp[7] == (source[7] ^ is_sub) && result[7] != temp[7];
+                if (affects_v) flags[FLAG_V] <= temp[7] == (source[7] ^ is_sub) && result[7] != temp[7];
               end
             SIZE_16:
               begin
-                flags[FLAG_C] <= result[16];
+                if (affects_c) flags[FLAG_C] <= result[16];
                 flags[FLAG_Z] <= result[15:0] == 0;
                 flags[FLAG_N] <= result[15];
-                flags[FLAG_V] <= temp[15] == (source[15] ^ is_sub) && result[15] != temp[15];
+                if (affects_v) flags[FLAG_V] <= temp[15] == (source[15] ^ is_sub) && result[15] != temp[15];
               end
             SIZE_32:
               begin
-                flags[FLAG_C] <= result[32];
+                if (affects_c) flags[FLAG_C] <= result[32];
                 flags[FLAG_Z] <= result[31:0] == 0;
                 flags[FLAG_N] <= result[31];
-                flags[FLAG_V] <= temp[31] == (source[31] ^ is_sub) && result[31] != temp[31];
+                if (affects_v) flags[FLAG_V] <= temp[31] == (source[31] ^ is_sub) && result[31] != temp[31];
               end
           endcase
 
