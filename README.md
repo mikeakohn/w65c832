@@ -355,8 +355,11 @@ The peripherals area contain the following:
 * 0x8000: input from push button
 * 0x8001: SPI TX
 * 0x8002: SPI RX
-* 0x8003: SPI CTRL
+* 0x8003: SPI CTRL - bit 2: 1 = 16 bit, 0 = 8 bit, bit 1: SPI start, bit 0: busy
 * 0x8008: ioport0 output (in my test case only 1 pin is connected)
 * 0x8009: MIDI note value (60-96) to play a tone on the speaker or 0 to stop
 * 0x800a: iport1
+* 0x800b: UART TX buffer
+* 0x800c: UART RX buffer
+* 0x800d: UART CTRL - bit 1: rx_ready, bit 0: tx_ready
 

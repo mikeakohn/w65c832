@@ -9,7 +9,8 @@ SOURCE= \
   src/ram.v \
   src/reg_mode.v \
   src/rom.v \
-  src/spi.v
+  src/spi.v \
+  src/uart.v
 
 default:
 	yosys -q -p "synth_ice40 -top $(PROGRAM) -json $(PROGRAM).json" $(SOURCE)

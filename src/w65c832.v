@@ -38,7 +38,9 @@ module w65c832
   input  button_0,
   output spi_clk_0,
   output spi_mosi_0,
-  input  spi_miso_0
+  input  spi_miso_0,
+  output uart_tx_0,
+  input  uart_rx_0
 );
 
 // iceFUN 8x4 LEDs used for debugging.
@@ -1818,6 +1820,8 @@ memory_bus memory_bus_0(
   .spi_clk_0      (spi_clk_0),
   .spi_mosi_0     (spi_mosi_0),
   .spi_miso_0     (spi_miso_0),
+  .uart_tx_0      (uart_tx_0),
+  .uart_rx_0      (uart_rx_0),
   .windbond_reset (windbond_reset),
   .windbond_wp    (windbond_wp),
   .windbond_do    (windbond_do),

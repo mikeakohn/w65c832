@@ -43,11 +43,9 @@ set_io --warn-no-port spi_clk_0  K12
 set_io --warn-no-port spi_mosi_0 K14
 set_io --warn-no-port spi_miso_0 H11
 
-# SPI peripheral 1.
-#set_io --warn-no-port spi_cs_1  K3
-#set_io --warn-no-port spi_clk_1  G3
-#set_io --warn-no-port spi_mosi_1 H3
-#set_io --warn-no-port spi_miso_1 J3
+# UART
+set_io --warn-no-port uart_tx_0 H3
+set_io --warn-no-port uart_rx_0 G3
 
 # Clock signal.
 set_io --warn-no-port raw_clk   P7
@@ -57,8 +55,8 @@ set_io --warn-no-port speaker_p M12
 set_io --warn-no-port speaker_m M6
 
 # Buttons.
-set_io --warn-no-port button_reset A5
-set_io --warn-no-port button_halt A11
+set_io --warn-no-port button_reset          A5
+set_io --warn-no-port button_halt           A11
 set_io --warn-no-port button_program_select C6
-set_io --warn-no-port button_0 C11
+set_io --warn-no-port button_0              C11
 

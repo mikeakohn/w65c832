@@ -34,6 +34,8 @@ module memory_bus
   output spi_clk_0,
   output spi_mosi_0,
   input  spi_miso_0,
+  output uart_tx_0,
+  input  uart_rx_0,
   output windbond_reset,
   output windbond_wp,
   output windbond_di,
@@ -129,7 +131,9 @@ peripherals peripherals_0(
   .reset        (reset),
   .spi_clk_0    (spi_clk_0),
   .spi_mosi_0   (spi_mosi_0),
-  .spi_miso_0   (spi_miso_0)
+  .spi_miso_0   (spi_miso_0),
+  .uart_tx_0    (uart_tx_0),
+  .uart_rx_0    (uart_rx_0)
 );
 
 /*

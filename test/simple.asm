@@ -17,6 +17,14 @@ start:
   ; Set X/Y to 32 bit.
   rep #0x10
 
+  clv
+
+  dec
+  php
+  pla
+brk
+
+
   lda.b #0x23
   sta 0x12
   lda.b #0x02

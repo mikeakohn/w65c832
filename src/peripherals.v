@@ -27,7 +27,9 @@ module peripherals
   input reset,
   output spi_clk_0,
   output spi_mosi_0,
-  input  spi_miso_0
+  input  spi_miso_0,
+  output uart_tx_0,
+  input  uart_rx_0
 );
 
 reg [7:0] storage [3:0];
@@ -57,6 +59,13 @@ wire spi_busy_0;
 reg spi_start_0 = 0;
 reg spi_width_16_0 = 0;
 //reg [3:0] spi_divisor_0 = 0;
+
+// UART 0.
+wire tx_busy;
+reg  tx_strobe = 0;
+reg  [7:0] tx_data;
+wire [7:0] rx_data;
+wire rx_ready;
 
 always @(button_0) begin
   buttons = { 7'b0, ~button_0 };
@@ -138,9 +147,11 @@ always @(posedge raw_clk) begin
           endcase
         end
       5'ha: ioport_b <= data_in;
+      5'hb: begin tx_data <= data_in; tx_strobe <= 1; end
     endcase
   end else begin
     if (spi_start_0 && spi_busy_0) spi_start_0 <= 0;
+    if (tx_strobe && tx_busy) tx_strobe <= 0;
 
     if (enable) begin
       case (address[5:0])
@@ -151,6 +162,8 @@ always @(posedge raw_clk) begin
         6'h4: data_out <= spi_rx_buffer_0;
         6'h8: data_out <= ioport_a;
         6'ha: data_out <= ioport_b;
+        6'hc: data_out <= rx_data;
+        6'hd: data_out <= { rx_ready, tx_busy };
       endcase
     end
   end
@@ -168,6 +181,18 @@ spi spi_0
   .sclk     (spi_clk_0),
   .mosi     (spi_mosi_0),
   .miso     (spi_miso_0)
+);
+
+uart uart_0
+(
+  .raw_clk   (raw_clk),
+  .tx_data   (tx_data),
+  .tx_strobe (tx_strobe),
+  .tx_busy   (tx_busy),
+  .tx_pin    (uart_tx_0),
+  .rx_data   (rx_data),
+  .rx_ready  (rx_ready),
+  .rx_pin    (uart_rx_0)
 );
 
 endmodule
