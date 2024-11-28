@@ -66,6 +66,7 @@ reg  tx_strobe = 0;
 reg  [7:0] tx_data;
 wire [7:0] rx_data;
 wire rx_ready;
+reg  rx_ready_clear = 0;
 
 always @(button_0) begin
   buttons = { 7'b0, ~button_0 };
@@ -153,6 +154,8 @@ always @(posedge raw_clk) begin
     if (spi_start_0 && spi_busy_0) spi_start_0 <= 0;
     if (tx_strobe && tx_busy) tx_strobe <= 0;
 
+    if (rx_ready_clear == 1) rx_ready_clear <= 0;
+
     if (enable) begin
       case (address[5:0])
         6'h0: data_out <= buttons;
@@ -162,7 +165,7 @@ always @(posedge raw_clk) begin
         6'h4: data_out <= spi_rx_buffer_0;
         6'h8: data_out <= ioport_a;
         6'ha: data_out <= ioport_b;
-        6'hc: data_out <= rx_data;
+        6'hc: begin data_out <= rx_data; rx_ready_clear <= 1; end
         6'hd: data_out <= { rx_ready, tx_busy };
       endcase
     end
@@ -185,14 +188,15 @@ spi spi_0
 
 uart uart_0
 (
-  .raw_clk   (raw_clk),
-  .tx_data   (tx_data),
-  .tx_strobe (tx_strobe),
-  .tx_busy   (tx_busy),
-  .tx_pin    (uart_tx_0),
-  .rx_data   (rx_data),
-  .rx_ready  (rx_ready),
-  .rx_pin    (uart_rx_0)
+  .raw_clk        (raw_clk),
+  .tx_data        (tx_data),
+  .tx_strobe      (tx_strobe),
+  .tx_busy        (tx_busy),
+  .tx_pin         (uart_tx_0),
+  .rx_data        (rx_data),
+  .rx_ready       (rx_ready),
+  .rx_ready_clear (rx_ready_clear),
+  .rx_pin         (uart_rx_0)
 );
 
 endmodule

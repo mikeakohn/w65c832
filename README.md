@@ -363,3 +363,5 @@ The peripherals area contain the following:
 * 0x800c: UART RX buffer
 * 0x800d: UART CTRL - bit 1: rx_ready, bit 0: tx_busy
 
+The UART runs only at 9600 baud. Reading from UART RX clears rx_ready.
+
