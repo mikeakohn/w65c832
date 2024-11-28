@@ -361,5 +361,5 @@ The peripherals area contain the following:
 * 0x800a: iport1
 * 0x800b: UART TX buffer
 * 0x800c: UART RX buffer
-* 0x800d: UART CTRL - bit 1: rx_ready, bit 0: tx_ready
+* 0x800d: UART CTRL - bit 1: rx_ready, bit 0: tx_busy
 
