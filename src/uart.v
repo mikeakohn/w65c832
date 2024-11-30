@@ -110,8 +110,12 @@ always @(posedge raw_clk) begin
           rx_divisor <= 0;
 
           if (rx_count == 10) begin
-            rx_data <= rx_buffer[8:1];
-            rx_ready_flag <= 1;
+            // Make sure stop bit is high or the data is invalid.
+            if (rx_buffer[9] == 1) begin
+              rx_data <= rx_buffer[8:1];
+              rx_ready_flag <= 1;
+            end
+
             rx_state <= STATE_IDLE;
           end else begin
             rx_state <= STATE_RX_BIT_FRONT;
