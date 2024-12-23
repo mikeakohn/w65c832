@@ -67,12 +67,12 @@ reg [21:0] count = 0;
 reg [5:0]  state = 0;
 reg [5:0]  next_state = 0;
 reg [5:0]  wb_state = 0;
-reg [19:0] clock_div;
+reg [2:0] clock_div;
 reg [14:0] delay_loop;
 wire clk;
 
 // Lower this (down to one) to increase speed.
-assign clk = clock_div[1];
+assign clk = clock_div[0];
 
 // Registers and stack.
 // A, X, Y.
