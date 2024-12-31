@@ -48,6 +48,10 @@ uart:
 	naken_asm -l -type bin -o rom.bin test/uart.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
+bootloader:
+	naken_asm -l -type bin -o rom.bin test/bootloader.asm
+	python3 tools/bin2txt.py rom.bin > rom.txt
+
 clean:
 	@rm -f $(PROGRAM).bin $(PROGRAM).json $(PROGRAM).asc *.lst
 	@rm -f blink.bin test_alu.bin test_shift.bin test_subroutine.bin
