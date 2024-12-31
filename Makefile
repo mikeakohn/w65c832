@@ -49,7 +49,8 @@ uart:
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
 bootloader:
-	python3 tools/bin2txt.py test/bootloader.bin > rom.txt
+	naken_asm -l -type bin -o rom.bin test/bootloader.asm
+	python3 tools/bin2txt.py rom.bin > rom.txt
 
 clean:
 	@rm -f $(PROGRAM).bin $(PROGRAM).json $(PROGRAM).asc *.lst
