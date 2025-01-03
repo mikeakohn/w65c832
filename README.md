@@ -315,6 +315,30 @@ cc = 11
 
 65C816 Instructions
 
+|aaa|opcode|
+|---|------|
+|000|ora
+|001|and
+|010|eor
+|011|adc
+|100|sta
+|101|lda
+|110|cmp
+|111|sbc
+
+|bbb|addressing mode|
+|---|---------------|
+|000|stack relative sr, s (2 bytes)
+|001|direct page indirect long (2 bytes)
+|010|
+|011|absolute long (4 bytes)
+|100|stack indirect indexed (sr,s), y (2 bytes)
+|101|direct page indirect long indexed [dp], Y (2 bytes)
+|110|
+|111|absolute long indexed long, x (4 bytes)
+
+Other 65C816 Instructions
+
     phd 0x0b - 000 010 11  Push Direct Register
     pld 0x2b - 001 010 11  Pull Direct Register
     phk 0x4b - 010 010 11  Push Program Bank Register

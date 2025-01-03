@@ -193,11 +193,11 @@ assign flag_z   = flags[FLAG_Z];
 assign flag_c   = flags[FLAG_C];
 
 // Eeprom.
-reg  [8:0] eeprom_count;
-wire [7:0] eeprom_data_out;
-reg [10:0] eeprom_address;
-reg eeprom_strobe = 0;
-wire eeprom_ready;
+//reg  [8:0] eeprom_count;
+//wire [7:0] eeprom_data_out;
+//reg [10:0] eeprom_address;
+//reg eeprom_strobe = 0;
+//wire eeprom_ready;
 
 // Debug.
 //reg [7:0] debug_0 = 0;
@@ -278,11 +278,6 @@ parameter STATE_JMP_ABS_1         = 53;
 parameter STATE_JMP_ABS_2         = 54;
 parameter STATE_JMP_ABS_3         = 55;
 
-parameter STATE_EEPROM_START      = 57;
-parameter STATE_EEPROM_READ       = 58;
-parameter STATE_EEPROM_WAIT       = 59;
-parameter STATE_EEPROM_WRITE      = 60;
-parameter STATE_EEPROM_DONE       = 61;
 parameter STATE_ERROR             = 62;
 parameter STATE_HALTED            = 63;
 
@@ -484,7 +479,7 @@ always @(posedge clk) begin
           mem_bus_enable <= 0;
           mem_bus_reset <= 1;
           delay_loop <= 12000;
-          eeprom_strobe <= 0;
+          //eeprom_strobe <= 0;
           reg_a <= 0;
           reg_x <= 0;
           reg_y <= 0;
@@ -502,12 +497,12 @@ always @(posedge clk) begin
           if (delay_loop == 0) begin
             mem_bus_reset <= 0;
 
-            // If button is not pushed, start rom.v code otherwise use EEPROM.
+            // If button is not pushed, start rom.v code otherwise use Winbond
+            // flash.
             if (button_program_select) begin
               pc <= 16'h4000;
             end else begin
               pc <= 16'hc000;
-              //state <= STATE_EEPROM_START;
             end
 
             state <= STATE_FETCH_OP_0;
@@ -1733,51 +1728,6 @@ always @(posedge clk) begin
 
           mem_bus_enable <= 0;
         end
-/*
-      STATE_EEPROM_START:
-        begin
-          // Initialize values for reading from SPI-like EEPROM.
-          if (eeprom_ready) begin
-            eeprom_count <= 0;
-            state <= STATE_EEPROM_READ;
-          end
-        end
-      STATE_EEPROM_READ:
-        begin
-          // Set the next EEPROM address to read from and strobe.
-          eeprom_address <= eeprom_count;
-          mem_address <= eeprom_count;
-          eeprom_strobe <= 1;
-          state <= STATE_EEPROM_WAIT;
-        end
-      STATE_EEPROM_WAIT:
-        begin
-          // Wait until 8 bits are clocked in.
-          eeprom_strobe <= 0;
-
-          if (eeprom_ready) begin
-            mem_write <= eeprom_data_out;
-            eeprom_count <= eeprom_count + 1;
-            state <= STATE_EEPROM_WRITE;
-          end
-        end
-      STATE_EEPROM_WRITE:
-        begin
-          // Write value read from EEPROM into memory.
-          mem_write_enable <= 1;
-          state <= STATE_EEPROM_DONE;
-        end
-      STATE_EEPROM_DONE:
-        begin
-          // Finish writing and read next byte if needed.
-          mem_write_enable <= 0;
-
-          if (eeprom_count == 256)
-            state <= STATE_FETCH_OP_0;
-          else
-            state <= STATE_EEPROM_READ;
-        end
-*/
       STATE_ERROR:
         begin
           state <= STATE_ERROR;
