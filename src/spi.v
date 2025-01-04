@@ -11,8 +11,7 @@ module spi
 (
   input  raw_clk,
   input  start,
-  input  width_16,
-  input  [15:0] data_tx,
+  input  [7:0] data_tx,
   output [7:0] data_rx,
   output busy,
   output reg sclk,
@@ -21,10 +20,9 @@ module spi
 );
 
 reg [1:0] state = 0;
-// FIXME: Width only supports 8 bit on the receive side.
 reg [7:0] rx_buffer;
-reg [15:0] tx_buffer;
-reg [4:0] count;
+reg [7:0] tx_buffer;
+reg [2:0] count;
 
 parameter STATE_IDLE    = 0;
 parameter STATE_CLOCK_0 = 1;
@@ -39,10 +37,7 @@ always @(posedge raw_clk) begin
     STATE_IDLE:
       begin
         if (start) begin
-          if (width_16)
-            tx_buffer <= data_tx;
-          else
-            tx_buffer[15:8] <= data_tx[7:0];
+          tx_buffer <= data_tx;
 
           state <= STATE_CLOCK_0;
           count <= 0;
@@ -57,8 +52,7 @@ always @(posedge raw_clk) begin
         if (count != 0) rx_buffer <= { rx_buffer[6:0], miso };
 
         tx_buffer <= tx_buffer << 1;
-        //tx_buffer <= { tx_buffer[14:0], 1'b0 };
-        mosi <= tx_buffer[15];
+        mosi <= tx_buffer[7];
 
         count <= count + 1;
         state <= STATE_CLOCK_1;
@@ -67,9 +61,7 @@ always @(posedge raw_clk) begin
       begin
         sclk <= 1;
 
-        if (width_16 == 0 && count[3]) begin
-          state <= STATE_LAST;
-        end else if (width_16 == 1 && count[4]) begin
+        if (count == 0) begin
           state <= STATE_LAST;
         end else begin
           state <= STATE_CLOCK_0;

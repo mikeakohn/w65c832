@@ -242,37 +242,38 @@ lcd_init:
 lcd_clear:
   php
   SET_M8_X32
-  lda.b #SPI_16
-  tsb SPI_CTL
-  ldx.l #96 * 64
+  ;lda.b #SPI_16
+  ;tsb SPI_CTL
+  ldx.l #96 * 64 * 2
 lcd_clear_loop:
   lda.b #0x0f
   sta SPI_TX+0
-  sta SPI_TX+1
+  ;sta SPI_TX+1
   jsr lcd_send_data
   dex
   bne lcd_clear_loop
-  lda.b #SPI_16
-  trb SPI_CTL
+  ;lda.b #SPI_16
+  ;trb SPI_CTL
   plp
   rts
 
 lcd_clear_2:
   php
   SET_M8_X32
-  lda.b #SPI_16
-  tsb SPI_CTL
+  ;lda.b #SPI_16
+  ;tsb SPI_CTL
   ldx.l #96 * 64
 lcd_clear_loop_2:
   lda.b #0x0f
-  sta SPI_TX+0
+  sta SPI_TX
+  jsr lcd_send_data
   lda.b #0xf0
-  sta SPI_TX+1
+  sta SPI_TX
   jsr lcd_send_data
   dex
   bne lcd_clear_loop_2
-  lda.b #SPI_16
-  trb SPI_CTL
+  ;lda.b #SPI_16
+  ;trb SPI_CTL
   plp
   rts
 
@@ -354,9 +355,9 @@ mandelbrot:
   php
 
   ;; Set SPI to 16 bit.
-  SET_M8_X8
-  lda.b #SPI_16
-  tsb SPI_CTL
+  ;SET_M8_X8
+  ;lda.b #SPI_16
+  ;tsb SPI_CTL
 
   ;SET_M32_X32
   ;stz zr
@@ -463,10 +464,11 @@ mandelbrot_stop:
   SET_M8_X8
   ldx color
 
-  lda colors+0,x
-  sta SPI_TX+0
   lda colors+1,x
-  sta SPI_TX+1
+  sta SPI_TX
+  jsr lcd_send_data
+  lda colors+0,x
+  sta SPI_TX
   jsr lcd_send_data
 
   SET_M16_X32
@@ -498,8 +500,8 @@ mandelbrot_for_y_exit:
 ;brk
 
   SET_M8_X8
-  lda.b #SPI_16
-  trb SPI_CTL
+  ;lda.b #SPI_16
+  ;trb SPI_CTL
 
   plp
   rts

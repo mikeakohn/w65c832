@@ -58,11 +58,9 @@ assign ioport_4 = ioport_b[3];
 
 // SPI 0.
 wire [7:0] spi_rx_buffer_0;
-reg  [15:0] spi_tx_buffer_0;
+reg  [7:0] spi_tx_buffer_0;
 wire spi_busy_0;
 reg spi_start_0 = 0;
-reg spi_width_16_0 = 0;
-//reg [3:0] spi_divisor_0 = 0;
 
 // SPI 1.
 wire [7:0] spi_rx_buffer_1;
@@ -106,12 +104,7 @@ always @(posedge raw_clk) begin
   if (write_enable) begin
     case (address[5:0])
       5'h1: spi_tx_buffer_0[7:0]  <= data_in;
-      5'h2: spi_tx_buffer_0[15:8] <= data_in;
-      5'h3:
-        begin
-          if (data_in[1] == 1) spi_start_0 <= 1;
-          spi_width_16_0 <= data_in[2];
-        end
+      5'h3: if (data_in[1] == 1) spi_start_0 <= 1;
       8: ioport_a <= data_in;
       9:
         begin
@@ -173,15 +166,14 @@ always @(posedge raw_clk) begin
       case (address[5:0])
         6'h0: data_out <= buttons;
         6'h1: data_out <= spi_tx_buffer_0[7:0];
-        6'h2: data_out <= spi_tx_buffer_0[15:8];
-        6'h3: data_out <= { spi_width_16_0, 1'b0, spi_busy_0 };
+        6'h3: data_out <= { 1'b0, spi_busy_0 };
         6'h4: data_out <= spi_rx_buffer_0;
         6'h8: data_out <= ioport_a;
         6'ha: data_out <= ioport_b;
         6'hc: begin data_out <= rx_data; rx_ready_clear <= 1; end
         6'hd: data_out <= { rx_ready, tx_busy };
-        6'he: data_out <= spi_tx_buffer_0[7:0];
-        6'hf: data_out <= spi_rx_buffer_0[7:0];
+        6'he: data_out <= spi_tx_buffer_1[7:0];
+        6'hf: data_out <= spi_rx_buffer_1[7:0];
         6'h10: data_out <= { 1'b0, spi_busy_1 };
         6'h11: data_out <= spi_cs_1;
       endcase
@@ -193,7 +185,6 @@ spi spi_0
 (
   .raw_clk  (raw_clk),
   .start    (spi_start_0),
-  .width_16 (spi_width_16_0),
   .data_tx  (spi_tx_buffer_0),
   .data_rx  (spi_rx_buffer_0),
   .busy     (spi_busy_0),
