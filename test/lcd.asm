@@ -121,10 +121,10 @@ lcd_init:
   SET_M8_X8
 
   lda.b #LCD_CS
-  sta SPI_IO
+  sta PORT1
   jsr delay
   lda.b #LCD_RES
-  tsb SPI_IO
+  tsb PORT1
 
   send_command(SSD1331_DISPLAY_OFF)
   send_command(SSD1331_SET_REMAP)
@@ -169,17 +169,17 @@ lcd_clear:
   php
   SET_M8_X32
   ;lda.b #SPI_16
-  ;tsb SPI_CTL
+  ;tsb SPI_CTL_0
   ldx.l #96 * 64 * 2
 lcd_clear_loop:
   lda.b #0x0f
-  sta SPI_TX+0
-  ;sta SPI_TX+1
+  sta SPI_TX_0
+  ;sta SPI_TX_0+1
   jsr lcd_send_data
   dex
   bne lcd_clear_loop
   ;lda.b #SPI_16
-  ;trb SPI_CTL
+  ;trb SPI_CTL_0
   plp
   rts
 
@@ -187,19 +187,19 @@ lcd_clear_2:
   php
   SET_M8_X32
   ;lda.b #SPI_16
-  ;tsb SPI_CTL
+  ;tsb SPI_CTL_0
   ldx.l #96 * 64
 lcd_clear_loop_2:
   lda.b #0x0f
-  sta SPI_TX
+  sta SPI_TX_0
   jsr lcd_send_data
   lda.b #0xf0
-  sta SPI_TX
+  sta SPI_TX_0
   jsr lcd_send_data
   dex
   bne lcd_clear_loop_2
   ;lda.b #SPI_16
-  ;trb SPI_CTL
+  ;trb SPI_CTL_0
   plp
   rts
 
@@ -283,7 +283,7 @@ mandelbrot:
   ;; Set SPI to 16 bit.
   ;SET_M8_X8
   ;lda.b #SPI_16
-  ;tsb SPI_CTL
+  ;tsb SPI_CTL_0
 
   ;SET_M32_X32
   ;stz zr
@@ -391,10 +391,10 @@ mandelbrot_stop:
   ldx color
 
   lda colors+1,x
-  sta SPI_TX
+  sta SPI_TX_0
   jsr lcd_send_data
   lda colors+0,x
-  sta SPI_TX
+  sta SPI_TX_0
   jsr lcd_send_data
 
   SET_M16_X32
@@ -427,7 +427,7 @@ mandelbrot_for_y_exit:
 
   SET_M8_X8
   ;lda.b #SPI_16
-  ;trb SPI_CTL
+  ;trb SPI_CTL_0
 
   plp
   rts
@@ -438,20 +438,20 @@ lcd_send_cmd:
   pha
   SET_M8_X8
   lda.b #LCD_DC|LCD_CS
-  trb SPI_IO
+  trb PORT1
 
   pla
-  sta SPI_TX
+  sta SPI_TX_0
 
   lda.b #SPI_START
-  tsb SPI_CTL
+  tsb SPI_CTL_0
 lcd_send_cmd_wait:
   lda.b #SPI_BUSY
-  bit SPI_CTL
+  bit SPI_CTL_0
   bne lcd_send_cmd_wait
 
   lda.b #LCD_CS
-  tsb SPI_IO
+  tsb PORT1
   plp
   rts
 
@@ -460,17 +460,17 @@ lcd_send_data:
   php
   SET_M8_X8
   lda.b #LCD_DC
-  tsb SPI_IO
+  tsb PORT1
   lda.b #LCD_CS
-  trb SPI_IO
+  trb PORT1
   lda.b #SPI_START
-  tsb SPI_CTL
+  tsb SPI_CTL_0
 lcd_send_data_wait:
   lda.b #SPI_BUSY
-  bit SPI_CTL
+  bit SPI_CTL_0
   bne lcd_send_data_wait
   lda.b #LCD_CS
-  tsb SPI_IO
+  tsb PORT1
   plp
   rts
 

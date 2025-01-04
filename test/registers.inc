@@ -1,9 +1,10 @@
 
 ;; Registers.
 BUTTON     equ 0x8000
-SPI_TX     equ 0x8001
-SPI_CTL    equ 0x8003
-SPI_RX     equ 0x8004
+SPI_TX_0   equ 0x8001
+SPI_CTL_0  equ 0x8003
+SPI_RX_0   equ 0x8004
+SPI_DIV_0  equ 0x8005
 PORT0      equ 0x8008
 SOUND      equ 0x8009
 SPI_IO     equ 0x800a
@@ -11,6 +12,11 @@ PORT1      equ 0x800a
 UART_TX    equ 0x800b
 UART_RX    equ 0x800c
 UART_CTL   equ 0x800d
+SPI_TX_1   equ 0x800e
+SPI_RX_1   equ 0x800f
+SPI_CTL_1  equ 0x8010
+SPI_IO_1   equ 0x8011
+SPI_DIV_1  equ 0x8012
 
 ;; Bits in SPI_CTL.
 SPI_BUSY   equ 1

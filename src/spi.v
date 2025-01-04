@@ -10,6 +10,7 @@
 module spi
 (
   input  raw_clk,
+  input  [2:0] divisor,
   input  start,
   input  [7:0] data_tx,
   output [7:0] data_rx,
@@ -23,6 +24,8 @@ reg [1:0] state = 0;
 reg [7:0] rx_buffer;
 reg [7:0] tx_buffer;
 reg [2:0] count;
+reg [7:0] div_count;
+reg clk;
 
 parameter STATE_IDLE    = 0;
 parameter STATE_CLOCK_0 = 1;
@@ -33,6 +36,16 @@ assign data_rx = rx_buffer;
 assign busy = state != STATE_IDLE;
 
 always @(posedge raw_clk) begin
+  if (divisor[2:1] == 0) begin
+    clk <= ~clk;
+  end else begin
+    clk <= div_count[divisor - 1];
+  end
+
+  div_count <= div_count + 1;
+end
+
+always @(posedge clk) begin
   case (state)
     STATE_IDLE:
       begin

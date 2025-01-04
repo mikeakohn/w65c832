@@ -61,12 +61,14 @@ wire [7:0] spi_rx_buffer_0;
 reg  [7:0] spi_tx_buffer_0;
 wire spi_busy_0;
 reg spi_start_0 = 0;
+reg [2:0] spi_divisor_0 = 0;
 
 // SPI 1.
 wire [7:0] spi_rx_buffer_1;
 reg  [7:0] spi_tx_buffer_1;
 wire spi_busy_1;
 reg spi_start_1 = 0;
+reg [2:0] spi_divisor_1 = 0;
 
 // UART 0.
 wire tx_busy;
@@ -105,6 +107,7 @@ always @(posedge raw_clk) begin
     case (address[5:0])
       5'h1: spi_tx_buffer_0[7:0]  <= data_in;
       5'h3: if (data_in[1] == 1) spi_start_0 <= 1;
+      5'h5: spi_divisor_0 <= data_in;
       8: ioport_a <= data_in;
       9:
         begin
@@ -151,9 +154,10 @@ always @(posedge raw_clk) begin
         end
       5'ha: ioport_b <= data_in;
       5'hb: begin tx_data <= data_in; tx_strobe <= 1; end
-      5'he: spi_tx_buffer_1[7:0]  <= data_in;
-      5'h10: if (data_in[1] == 1) spi_start_0 <= 1;
+      5'he: spi_tx_buffer_1[7:0] <= data_in;
+      5'h10: if (data_in[1] == 1) spi_start_1 <= 1;
       5'h11: spi_cs_1 <= data_in;
+      5'h12: spi_divisor_1 <= data_in;
     endcase
   end else begin
     if (spi_start_0 && spi_busy_0) spi_start_0 <= 0;
@@ -168,6 +172,7 @@ always @(posedge raw_clk) begin
         6'h1: data_out <= spi_tx_buffer_0[7:0];
         6'h3: data_out <= { 1'b0, spi_busy_0 };
         6'h4: data_out <= spi_rx_buffer_0;
+        6'h5: data_out <= spi_divisor_0;
         6'h8: data_out <= ioport_a;
         6'ha: data_out <= ioport_b;
         6'hc: begin data_out <= rx_data; rx_ready_clear <= 1; end
@@ -176,6 +181,7 @@ always @(posedge raw_clk) begin
         6'hf: data_out <= spi_rx_buffer_1[7:0];
         6'h10: data_out <= { 1'b0, spi_busy_1 };
         6'h11: data_out <= spi_cs_1;
+        6'h12: data_out <= spi_divisor_1;
       endcase
     end
   end
@@ -184,6 +190,7 @@ end
 spi spi_0
 (
   .raw_clk  (raw_clk),
+  .divisor  (spi_divisor_0),
   .start    (spi_start_0),
   .data_tx  (spi_tx_buffer_0),
   .data_rx  (spi_rx_buffer_0),
@@ -196,6 +203,7 @@ spi spi_0
 spi spi_1
 (
   .raw_clk  (raw_clk),
+  .divisor  (spi_divisor_1),
   .start    (spi_start_1),
   .data_tx  (spi_tx_buffer_1),
   .data_rx  (spi_rx_buffer_1),
