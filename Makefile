@@ -1,4 +1,5 @@
 
+NAKEN_INCLUDE=../naken_asm/include
 PROGRAM=w65c832
 SOURCE= \
   src/$(PROGRAM).v \
@@ -25,7 +26,7 @@ blink:
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
 lcd:
-	naken_asm -l -type bin -o rom.bin test/lcd.asm
+	naken_asm -l -type bin -o rom.bin -I$(NAKEN_INCLUDE) test/lcd.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
 jml_blink:
