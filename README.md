@@ -328,14 +328,14 @@ cc = 11
 
 |bbb|addressing mode|
 |---|---------------|
-|000|stack relative sr, s (2 bytes)
-|001|direct page indirect long (2 bytes)
+|000|(sr, s) (2 bytes, stack relative) 
+|001|[dp] (2 bytes, direct page indirect long)
 |010|
-|011|absolute long (4 bytes)
-|100|stack indirect indexed (sr,s), y (2 bytes)
-|101|direct page indirect long indexed [dp], Y (2 bytes)
+|011|absolute24 (4 bytes)
+|100|(sr, s), y (2 bytes, stack relative indirect)
+|101|[dp], Y (2 bytes, direct page indirect long indexed)
 |110|
-|111|absolute long indexed long, x (4 bytes)
+|111|absolute24, x (4 bytes, absolute long indexed)
 
 Other 65C816 Instructions
 
@@ -377,15 +377,20 @@ in Bank 3.
 The peripherals area contain the following:
 
 * 0x8000: input from push button
-* 0x8001: SPI TX
-* 0x8002: SPI RX
-* 0x8003: SPI CTRL - bit 2: 1 = 16 bit, 0 = 8 bit, bit 1: SPI start, bit 0: busy
+* 0x8001: SPI_TX0
+* 0x8002: SPI_TX0_16: Upper 8 bits of TX when in 16 bit mode.
+* 0x8003: SPI_CTRL0: bit 2: 1 = 16 bit, 0 = 8 bit, bit 1: SPI start, bit 0: busy
+* 0x8004: SPI_RX0
 * 0x8008: ioport0 output (in my test case only 1 pin is connected)
 * 0x8009: MIDI note value (60-96) to play a tone on the speaker or 0 to stop
 * 0x800a: iport1
 * 0x800b: UART TX buffer
 * 0x800c: UART RX buffer
 * 0x800d: UART CTRL - bit 1: rx_ready, bit 0: tx_busy
+* 0x800e: SPI_TX1
+* 0x800f: SPI_RX1
+* 0x8010: SPI_CTRL1: bit 1: SPI start, bit 0: busy
+* 0x8011: SPI_IO1: bit 0: cs
 
 The UART runs only at 9600 baud. Reading from UART RX clears rx_ready.
 

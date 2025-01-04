@@ -28,6 +28,10 @@ module peripherals
   output spi_clk_0,
   output spi_mosi_0,
   input  spi_miso_0,
+  output reg spi_cs_1,
+  output spi_clk_1,
+  output spi_mosi_1,
+  input  spi_miso_1,
   output uart_tx_0,
   input  uart_rx_0
 );
@@ -59,6 +63,12 @@ wire spi_busy_0;
 reg spi_start_0 = 0;
 reg spi_width_16_0 = 0;
 //reg [3:0] spi_divisor_0 = 0;
+
+// SPI 1.
+wire [7:0] spi_rx_buffer_1;
+reg  [7:0] spi_tx_buffer_1;
+wire spi_busy_1;
+reg spi_start_1 = 0;
 
 // UART 0.
 wire tx_busy;
@@ -101,7 +111,6 @@ always @(posedge raw_clk) begin
         begin
           if (data_in[1] == 1) spi_start_0 <= 1;
           spi_width_16_0 <= data_in[2];
-          //spi_divisor_0 <= data_in[7:4];
         end
       8: ioport_a <= data_in;
       9:
@@ -149,9 +158,13 @@ always @(posedge raw_clk) begin
         end
       5'ha: ioport_b <= data_in;
       5'hb: begin tx_data <= data_in; tx_strobe <= 1; end
+      5'he: spi_tx_buffer_1[7:0]  <= data_in;
+      5'h10: if (data_in[1] == 1) spi_start_0 <= 1;
+      5'h11: spi_cs_1 <= data_in;
     endcase
   end else begin
     if (spi_start_0 && spi_busy_0) spi_start_0 <= 0;
+    if (spi_start_1 && spi_busy_1) spi_start_1 <= 0;
     if (tx_strobe && tx_busy) tx_strobe <= 0;
 
     if (rx_ready_clear == 1) rx_ready_clear <= 0;
@@ -167,6 +180,10 @@ always @(posedge raw_clk) begin
         6'ha: data_out <= ioport_b;
         6'hc: begin data_out <= rx_data; rx_ready_clear <= 1; end
         6'hd: data_out <= { rx_ready, tx_busy };
+        6'he: data_out <= spi_tx_buffer_0[7:0];
+        6'hf: data_out <= spi_rx_buffer_0[7:0];
+        6'h10: data_out <= { 1'b0, spi_busy_1 };
+        6'h11: data_out <= spi_cs_1;
       endcase
     end
   end
@@ -175,7 +192,6 @@ end
 spi spi_0
 (
   .raw_clk  (raw_clk),
-  //.divisor  (spi_divisor_0),
   .start    (spi_start_0),
   .width_16 (spi_width_16_0),
   .data_tx  (spi_tx_buffer_0),
@@ -184,6 +200,18 @@ spi spi_0
   .sclk     (spi_clk_0),
   .mosi     (spi_mosi_0),
   .miso     (spi_miso_0)
+);
+
+spi spi_1
+(
+  .raw_clk  (raw_clk),
+  .start    (spi_start_1),
+  .data_tx  (spi_tx_buffer_1),
+  .data_rx  (spi_rx_buffer_1),
+  .busy     (spi_busy_1),
+  .sclk     (spi_clk_1),
+  .mosi     (spi_mosi_1),
+  .miso     (spi_miso_1)
 );
 
 uart uart_0

@@ -5,7 +5,7 @@
 //   Board: iceFUN iCE40 HX8K
 // License: MIT
 //
-// Copyright 2024 by Michael Kohn
+// Copyright 2024-2025 by Michael Kohn
 
 // The purpose of this module is to route reads and writes to the 4
 // different memory banks. Originally the idea was to have ROM and RAM
@@ -34,6 +34,10 @@ module memory_bus
   output spi_clk_0,
   output spi_mosi_0,
   input  spi_miso_0,
+  output spi_cs_1,
+  output spi_clk_1,
+  output spi_mosi_1,
+  input  spi_miso_1,
   output uart_tx_0,
   input  uart_rx_0,
   output windbond_reset,
@@ -132,6 +136,10 @@ peripherals peripherals_0(
   .spi_clk_0    (spi_clk_0),
   .spi_mosi_0   (spi_mosi_0),
   .spi_miso_0   (spi_miso_0),
+  .spi_cs_1     (spi_cs_1),
+  .spi_clk_1    (spi_clk_1),
+  .spi_mosi_1   (spi_mosi_1),
+  .spi_miso_1   (spi_miso_1),
   .uart_tx_0    (uart_tx_0),
   .uart_rx_0    (uart_rx_0)
 );

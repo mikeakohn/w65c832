@@ -5,7 +5,7 @@
 //   Board: iceFUN iCE40 HX8K
 // License: MIT
 //
-// Copyright 2024 by Michael Kohn
+// Copyright 2024-2025 by Michael Kohn
 
 `include "addressing_mode.vinc"
 `include "reg_mode.vinc"
@@ -15,10 +15,6 @@ module w65c832
   output [7:0] leds,
   output [3:0] column,
   input raw_clk,
-  //output eeprom_cs,
-  //output eeprom_clk,
-  //output eeprom_di,
-  //input  eeprom_do,
   output windbond_reset,
   output windbond_wp,
   output windbond_di,
@@ -39,6 +35,10 @@ module w65c832
   output spi_clk_0,
   output spi_mosi_0,
   input  spi_miso_0,
+  output spi_cs_1,
+  output spi_clk_1,
+  output spi_mosi_1,
+  input  spi_miso_1,
   output uart_tx_0,
   input  uart_rx_0
 );
@@ -1770,6 +1770,10 @@ memory_bus memory_bus_0(
   .spi_clk_0      (spi_clk_0),
   .spi_mosi_0     (spi_mosi_0),
   .spi_miso_0     (spi_miso_0),
+  .spi_cs_1       (spi_cs_1),
+  .spi_clk_1      (spi_clk_1),
+  .spi_mosi_1     (spi_mosi_1),
+  .spi_miso_1     (spi_miso_1),
   .uart_tx_0      (uart_tx_0),
   .uart_rx_0      (uart_rx_0),
   .windbond_reset (windbond_reset),
@@ -1799,21 +1803,6 @@ reg_mode reg_mode_0
   .size_m (size_m),
   .size_x (size_x)
 );
-
-/*
-eeprom eeprom_0
-(
-  .address    (eeprom_address),
-  .strobe     (eeprom_strobe),
-  .raw_clk    (raw_clk),
-  .eeprom_cs  (eeprom_cs),
-  .eeprom_clk (eeprom_clk),
-  .eeprom_di  (eeprom_di),
-  .eeprom_do  (eeprom_do),
-  .ready      (eeprom_ready),
-  .data_out   (eeprom_data_out)
-);
-*/
 
 endmodule
 

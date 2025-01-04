@@ -21,11 +21,11 @@ set_io --warn-no-port ioport_2  H12
 set_io --warn-no-port ioport_3  J12
 set_io --warn-no-port ioport_4  K3
 
-# SPI eeprom.
-#set_io --warn-no-port eeprom_cs  E12
-#set_io --warn-no-port eeprom_clk E14
-#set_io --warn-no-port eeprom_di  F12
-#set_io --warn-no-port eeprom_do  F14
+# SPI Peripheral 1 (SparkFun SerLCD).
+set_io --warn-no-port spi_cs_1   E12
+set_io --warn-no-port spi_mosi_1 E14
+set_io --warn-no-port spi_miso_1 F12
+set_io --warn-no-port spi_clk_1  F14
 
 # Windbond W25Q128JV 16MB flash memory.
 # do connects to do pin on flash chip and is an input to the w65c832.
