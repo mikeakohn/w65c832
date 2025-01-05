@@ -138,7 +138,7 @@ reg [7:0] block_source;
 
 // Addressing mode.
 wire [2:0] addressing_mode;
-wire [2:0] ea_size;
+wire [2:0] extra_bytes;
 reg        indirect_count;
 reg  [2:0] absolute_count;
 reg  [2:0] immediate_count;
@@ -965,7 +965,7 @@ always @(posedge clk) begin
       STATE_FETCH_ABSOLUTE_0:
         begin
           // MODE_ZP and MODE_ABSOLUTE are the same, the difference is
-          // ea_size.
+          // extra_bytes.
           if (addressing_mode == MODE_ZP &&
               absolute_count != 1 &&
               is_emulation_8 == 0) begin
@@ -988,8 +988,8 @@ always @(posedge clk) begin
             2: ea[15:8] <= mem_read;
           endcase
 
-          if (absolute_count == ea_size)
-            if (addressing_mode == MODE_ZP && ea_size == 1) begin
+          if (absolute_count == extra_bytes)
+            if (addressing_mode == MODE_ZP && extra_bytes == 1) begin
               state <= STATE_FETCH_DIRECT_PAGE;
             end else if (addressing_mode == MODE_ABSOLUTE) begin
               state <= STATE_FETCH_IMMEDIATE_0;
@@ -1787,11 +1787,11 @@ memory_bus memory_bus_0(
 
 addressing_mode addressing_mode_0
 (
-  .cc        (cc),
-  .bbb       (bbb),
-  .aaa       (aaa),
-  .mode      (addressing_mode),
-  .ea_size   (ea_size)
+  .cc          (cc),
+  .bbb         (bbb),
+  .aaa         (aaa),
+  .mode        (addressing_mode),
+  .extra_bytes (extra_bytes)
 );
 
 reg_mode reg_mode_0

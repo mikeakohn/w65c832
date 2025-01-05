@@ -15,7 +15,7 @@ module addressing_mode
   input [2:0] bbb,
   input [2:0] aaa,
   output reg [2:0] mode,
-  output reg [2:0] ea_size
+  output reg [2:0] extra_bytes
 );
 
 always @ * begin
@@ -26,27 +26,27 @@ always @ * begin
           3'b000:
             begin
               mode <= MODE_IMMEDIATE;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b001:
             begin
               mode <= MODE_ZP;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b010:
             begin
               mode <= MODE_NONE;
-              ea_size <= 0;
+              extra_bytes <= 0;
             end
           3'b011:
             begin
               mode <= MODE_ABSOLUTE;
-              ea_size <= 2;
+              extra_bytes <= 2;
             end
           3'b100:
             begin
               mode <= MODE_NONE;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b101:
             begin
@@ -54,12 +54,13 @@ always @ * begin
                 mode <= MODE_ZP;
               else
                 mode <= MODE_INDEXED_X;
-              ea_size <= 1;
+
+              extra_bytes <= 1;
             end
           3'b110:
             begin
               mode <= MODE_NONE;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b111:
             begin
@@ -67,7 +68,8 @@ always @ * begin
                 mode <= MODE_ABSOLUTE;
               else
                 mode <= MODE_ABSOLUTE_X;
-              ea_size <= 2;
+
+              extra_bytes <= 2;
             end
         endcase
       end
@@ -77,42 +79,42 @@ always @ * begin
           3'b000:
             begin
               mode <= MODE_INDIRECT_X;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b001:
             begin
               mode <= MODE_ZP;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b010:
             begin
               mode <= MODE_IMMEDIATE;
-              ea_size <= 0;
+              extra_bytes <= 0;
             end
           3'b011:
             begin
               mode <= MODE_ABSOLUTE;
-              ea_size <= 2;
+              extra_bytes <= 2;
             end
           3'b100:
             begin
               mode <= MODE_INDIRECT_Y;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b101:
             begin
               mode <= MODE_INDEXED_X;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b110:
             begin
               mode <= MODE_ABSOLUTE_Y;
-              ea_size <= 2;
+              extra_bytes <= 2;
             end
           3'b111:
             begin
               mode <= MODE_ABSOLUTE_X;
-              ea_size <= 2;
+              extra_bytes <= 2;
             end
         endcase
       end
@@ -122,37 +124,37 @@ always @ * begin
           3'b000:
             begin
               mode <= MODE_IMMEDIATE;
-              ea_size <= 0;
+              extra_bytes <= 0;
             end
           3'b001:
             begin
               mode <= MODE_ZP;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b010:
             begin
               mode <= MODE_A;
-              ea_size <= 0;
+              extra_bytes <= 0;
             end
           3'b011:
             begin
               mode <= MODE_ABSOLUTE;
-              ea_size <= 2;
+              extra_bytes <= 2;
             end
           3'b101:
             begin
               mode <= MODE_INDEXED_X;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b111:
             begin
               mode <= MODE_ABSOLUTE_Y;
-              ea_size <= 2;
+              extra_bytes <= 2;
             end
           default:
             begin
               mode <= MODE_NONE;
-              ea_size <= 0;
+              extra_bytes <= 0;
             end
         endcase
       end
@@ -162,32 +164,32 @@ always @ * begin
           3'b000:
             begin
               mode <= MODE_IMMEDIATE;
-              ea_size <= 0;
+              extra_bytes <= 0;
             end
           3'b001:
             begin
               mode <= MODE_ZP;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b011:
             begin
               mode <= MODE_ABSOLUTE;
-              ea_size <= 2;
+              extra_bytes <= 2;
             end
           3'b101:
             begin
               mode <= MODE_INDEXED_X;
-              ea_size <= 1;
+              extra_bytes <= 1;
             end
           3'b111:
             begin
               mode <= MODE_ABSOLUTE_X;
-              ea_size <= 2;
+              extra_bytes <= 2;
             end
           default:
             begin
               mode <= MODE_NONE;
-              ea_size <= 0;
+              extra_bytes <= 0;
             end
         endcase
       end
