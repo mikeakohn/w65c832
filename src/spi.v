@@ -5,7 +5,7 @@
 //   Board: iceFUN iCE40 HX8K
 // License: MIT
 //
-// Copyright 2024 by Michael Kohn
+// Copyright 2024-2025 by Michael Kohn
 
 module spi
 (
@@ -14,7 +14,7 @@ module spi
   input  start,
   input  [7:0] data_tx,
   output [7:0] data_rx,
-  output busy,
+  output reg busy,
   output reg sclk,
   output reg mosi,
   input  miso
@@ -25,7 +25,6 @@ reg [7:0] rx_buffer;
 reg [7:0] tx_buffer;
 reg [2:0] count;
 reg [7:0] div_count;
-reg clk;
 
 parameter STATE_IDLE    = 0;
 parameter STATE_CLOCK_0 = 1;
@@ -33,15 +32,13 @@ parameter STATE_CLOCK_1 = 2;
 parameter STATE_LAST    = 3;
 
 assign data_rx = rx_buffer;
-assign busy = state != STATE_IDLE;
+//assign busy = state != STATE_IDLE;
+//assign busy = state != STATE_IDLE || start == 1;
+
+wire clk;
+assign clk = divisor == 0 ? raw_clk : div_count[divisor];
 
 always @(posedge raw_clk) begin
-  if (divisor[2:1] == 0) begin
-    clk <= ~clk;
-  end else begin
-    clk <= div_count[divisor - 1];
-  end
-
   div_count <= div_count + 1;
 end
 
@@ -54,8 +51,10 @@ always @(posedge clk) begin
 
           state <= STATE_CLOCK_0;
           count <= 0;
+          busy <= 1;
         end else begin
           mosi <= 0;
+          busy <= 0;
         end
       end
     STATE_CLOCK_0:

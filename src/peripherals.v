@@ -5,7 +5,7 @@
 //   Board: iceFUN iCE40 HX8K
 // License: MIT
 //
-// Copyright 2024 by Michael Kohn
+// Copyright 2024-2025 by Michael Kohn
 
 module peripherals
 (
@@ -170,7 +170,7 @@ always @(posedge raw_clk) begin
       case (address[5:0])
         6'h0: data_out <= buttons;
         6'h1: data_out <= spi_tx_buffer_0[7:0];
-        6'h3: data_out <= { 1'b0, spi_busy_0 };
+        6'h3: data_out <= { 1'b0, spi_busy_0 || spi_start_0 };
         6'h4: data_out <= spi_rx_buffer_0;
         6'h5: data_out <= spi_divisor_0;
         6'h8: data_out <= ioport_a;
@@ -179,7 +179,7 @@ always @(posedge raw_clk) begin
         6'hd: data_out <= { rx_ready, tx_busy };
         6'he: data_out <= spi_tx_buffer_1[7:0];
         6'hf: data_out <= spi_rx_buffer_1[7:0];
-        6'h10: data_out <= { 1'b0, spi_busy_1 };
+        6'h10: data_out <= { 1'b0, spi_busy_1 || spi_start_1 };
         6'h11: data_out <= spi_cs_1;
         6'h12: data_out <= spi_divisor_1;
       endcase
