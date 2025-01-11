@@ -891,8 +891,8 @@ always @(posedge clk) begin
                     case (addressing_mode)
                       MODE_STACK_RELATIVE: state <= STATE_FETCH_ABSOLUTE_0;
                       MODE_ABSOLUTE:       state <= STATE_FETCH_ABSOLUTE_0;
-                      //MODE_INDIRECT_X: state <= STATE_FETCH_INDIRECT_0;
-                      MODE_INDIRECT_Y:     state <= STATE_FETCH_INDIRECT_0;
+                      MODE_INDIRECT_S_Y:   state <= STATE_FETCH_INDIRECT_0;
+                      //MODE_INDIRECT_Y:     state <= STATE_FETCH_INDIRECT_0;
                       MODE_ABSOLUTE_X:     state <= STATE_FETCH_ABSOLUTE_0;
                       //MODE_ABSOLUTE_Y: state <= STATE_FETCH_ABSOLUTE_0;
                       default:             state <= STATE_ERROR;
@@ -921,6 +921,8 @@ always @(posedge clk) begin
               SIZE_16: ea_indirect <= mem_read + dr + reg_x[15:0];
               SIZE_32: ea_indirect <= mem_read + dr + reg_x[31:0];
             endcase
+          if (addressing_mode == MODE_INDIRECT_S_Y)
+            ea_indirect <= mem_read + sp;
           else
             ea_indirect[15:0] <= mem_read + dr;
 

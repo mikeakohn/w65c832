@@ -168,7 +168,7 @@ always @ * begin
             end
           3'b001:
             begin
-              mode <= MODE_ZP;
+              mode <= MODE_INDIRECT_24;
               extra_bytes <= 1;
             end
           3'b011:
@@ -178,12 +178,12 @@ always @ * begin
             end
           3'b100:
             begin
-              mode <= MODE_STACK_INDIRECT_Y;
-              extra_bytes <= 3;
+              mode <= MODE_INDIRECT_S_Y;
+              extra_bytes <= 1;
             end
           3'b101:
             begin
-              mode <= MODE_INDIRECT_Y;
+              mode <= MODE_INDIRECT_24_Y;
               extra_bytes <= 2;
             end
           3'b111:

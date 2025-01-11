@@ -276,7 +276,7 @@ cc = 10
 |001|zero page
 |010|accumulator
 |011|absolute
-|100|(dp)    -missing-
+|100|(dp)    (adc, and, cmp, eor, lda, ora, sbc, sta)
 |101|zero page, X
 |110|
 |111|absolute, X
