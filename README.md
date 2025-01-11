@@ -328,7 +328,7 @@ cc = 11
 
 |bbb|addressing mode|
 |---|---------------|
-|000|(sr, s) (2 bytes, stack relative)                     -missing-
+|000|sr, s (2 bytes, stack relative)
 |001|[dp] (2 bytes, direct page indirect long)             -missing-
 |010|
 |011|absolute24 (4 bytes)

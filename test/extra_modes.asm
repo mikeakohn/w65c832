@@ -31,17 +31,11 @@ main:
   jsr spi_send_data
 
   ;; Test new modes.
-  ldx.l #1
 
-  SET_M32_X32_FULL
-  lda 0x1_0000, x
-  SET_M8_X32
-
-  ;lda 0x1_c000
-  ;lda 0x1_0000
-  ;lda 0xc000
-  ;lda 0x401d
-  ;lda [0x30]
+  ;jsr test_absolute24_x
+  ;jsr test_absolute24
+  ;jsr test_indirect24
+  jsr test_stack_relative
 
   jsr print_accum
 
@@ -58,6 +52,46 @@ run:
 
   jsl delay
   jmp run
+
+test_indirect_24:
+  lda [0x30]
+  rts
+
+test_stack_relative:
+  ;; Test stack relative.
+  lda.b #'1'
+  pha
+  lda.b #'2'
+  pha
+  lda.b #'3'
+  pha
+  lda.b #'4'
+  pha
+
+  lda 0x02, s
+  sta 0
+  pla
+  pla
+  pla
+  pla
+  lda 0
+  rts
+
+test_absolute24:
+  ;; Test absolute24.
+  lda 0x1_c000
+  ;lda 0x1_0000
+  ;lda 0xc000
+  ;lda 0x401d
+  rts
+
+test_absolute24_x:
+  ;; Test absolute24, x
+  SET_M32_X32_FULL
+  ldx.l #1
+  lda 0x1_0000, x
+  SET_M8_X32
+  rts
 
 clear_screen:
   lda.b #'|'

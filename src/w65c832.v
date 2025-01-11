@@ -212,64 +212,65 @@ parameter STATE_FETCH_INDIRECT_Y  = 9;
 parameter STATE_FETCH_ABSOLUTE_0  = 10;
 parameter STATE_FETCH_ABSOLUTE_1  = 11;
 parameter STATE_FETCH_DIRECT_PAGE = 12;
-parameter STATE_FETCH_INDEXED     = 13;
-parameter STATE_FETCH_IMMEDIATE_0 = 14;
-parameter STATE_FETCH_IMMEDIATE_1 = 15;
+parameter STATE_FETCH_STACK_INDEXED = 13;
+parameter STATE_FETCH_INDEXED     = 14;
+parameter STATE_FETCH_IMMEDIATE_0 = 15;
+parameter STATE_FETCH_IMMEDIATE_1 = 16;
 
-parameter STATE_EXECUTE_00_0      = 16;
-parameter STATE_EXECUTE_00_1      = 17;
+parameter STATE_EXECUTE_00_0      = 17;
+parameter STATE_EXECUTE_00_1      = 18;
 
-parameter STATE_EXECUTE_01_0      = 18;
-parameter STATE_EXECUTE_01_1      = 19;
+parameter STATE_EXECUTE_01_0      = 19;
+parameter STATE_EXECUTE_01_1      = 20;
 
-parameter STATE_EXECUTE_10_0      = 20;
-parameter STATE_EXECUTE_10_1      = 21;
+parameter STATE_EXECUTE_10_0      = 21;
+parameter STATE_EXECUTE_10_1      = 22;
 
-parameter STATE_WRITEBACK_A       = 22;
-parameter STATE_WRITEBACK_X       = 23;
-parameter STATE_WRITEBACK_Y       = 24;
+parameter STATE_WRITEBACK_A       = 23;
+parameter STATE_WRITEBACK_X       = 24;
+parameter STATE_WRITEBACK_Y       = 25;
 
-parameter STATE_WRITEBACK_MEM_P   = 25;
-parameter STATE_WRITEBACK_MEM_0   = 26;
-parameter STATE_WRITEBACK_MEM_1   = 27;
+parameter STATE_WRITEBACK_MEM_P   = 26;
+parameter STATE_WRITEBACK_MEM_0   = 27;
+parameter STATE_WRITEBACK_MEM_1   = 28;
 
-parameter STATE_BRANCH_0          = 28;
-parameter STATE_BRANCH_1          = 29;
+parameter STATE_BRANCH_0          = 29;
+parameter STATE_BRANCH_1          = 30;
 
-parameter STATE_SET_FLAGS_0       = 30;
-parameter STATE_SET_FLAGS_1       = 31;
+parameter STATE_SET_FLAGS_0       = 31;
+parameter STATE_SET_FLAGS_1       = 32;
 
-parameter STATE_PUSH_0            = 32;
-parameter STATE_PUSH_1            = 33;
-parameter STATE_PUSH_2            = 34;
+parameter STATE_PUSH_0            = 33;
+parameter STATE_PUSH_1            = 34;
+parameter STATE_PUSH_2            = 35;
 
-parameter STATE_POP_0             = 35;
-parameter STATE_POP_1             = 36;
-parameter STATE_POP_WB            = 37;
+parameter STATE_POP_0             = 36;
+parameter STATE_POP_1             = 37;
+parameter STATE_POP_WB            = 38;
 
-parameter STATE_JUMP_LONG         = 38;
-parameter STATE_CALC_PER          = 39;
-parameter STATE_CALC_PEI_0        = 40;
-parameter STATE_CALC_PEI_1        = 41;
+parameter STATE_JUMP_LONG         = 39;
+parameter STATE_CALC_PER          = 40;
+parameter STATE_CALC_PEI_0        = 41;
+parameter STATE_CALC_PEI_1        = 42;
 
-parameter STATE_RTI_0             = 42;
-parameter STATE_RTI_1             = 43;
+parameter STATE_RTI_0             = 43;
+parameter STATE_RTI_1             = 44;
 
-parameter STATE_STZ               = 44;
+parameter STATE_STZ               = 45;
 
-parameter STATE_MOVE_BLOCK_0      = 45;
-parameter STATE_MOVE_BLOCK_1      = 46;
-parameter STATE_MOVE_BLOCK_2      = 47;
-parameter STATE_MOVE_BLOCK_3      = 48;
-parameter STATE_MOVE_BLOCK_4      = 49;
-parameter STATE_MOVE_BLOCK_5      = 50;
+parameter STATE_MOVE_BLOCK_0      = 46;
+parameter STATE_MOVE_BLOCK_1      = 47;
+parameter STATE_MOVE_BLOCK_2      = 48;
+parameter STATE_MOVE_BLOCK_3      = 49;
+parameter STATE_MOVE_BLOCK_4      = 50;
+parameter STATE_MOVE_BLOCK_5      = 51;
 
-parameter STATE_TEST_BITS         = 51;
+parameter STATE_TEST_BITS         = 52;
 
-parameter STATE_JMP_ABS_0         = 52;
-parameter STATE_JMP_ABS_1         = 53;
-parameter STATE_JMP_ABS_2         = 54;
-parameter STATE_JMP_ABS_3         = 55;
+parameter STATE_JMP_ABS_0         = 53;
+parameter STATE_JMP_ABS_1         = 54;
+parameter STATE_JMP_ABS_2         = 55;
+parameter STATE_JMP_ABS_3         = 56;
 
 parameter STATE_ERROR             = 62;
 parameter STATE_HALTED            = 63;
@@ -887,15 +888,14 @@ always @(posedge clk) begin
                   end
                 default:
                   begin
-//HERE
                     case (addressing_mode)
-                      //MODE_STACK_RELATIVE: state <= STATE_FETCH_STACK_REL_0;
-                      MODE_ABSOLUTE:   state <= STATE_FETCH_ABSOLUTE_0;
+                      MODE_STACK_RELATIVE: state <= STATE_FETCH_ABSOLUTE_0;
+                      MODE_ABSOLUTE:       state <= STATE_FETCH_ABSOLUTE_0;
                       //MODE_INDIRECT_X: state <= STATE_FETCH_INDIRECT_0;
-                      //MODE_INDIRECT_Y: state <= STATE_FETCH_INDIRECT_0;
-                      MODE_ABSOLUTE_X: state <= STATE_FETCH_ABSOLUTE_0;
+                      MODE_INDIRECT_Y:     state <= STATE_FETCH_INDIRECT_0;
+                      MODE_ABSOLUTE_X:     state <= STATE_FETCH_ABSOLUTE_0;
                       //MODE_ABSOLUTE_Y: state <= STATE_FETCH_ABSOLUTE_0;
-                      default:         state <= STATE_ERROR;
+                      default:             state <= STATE_ERROR;
                     endcase
 
                     //state <= STATE_ERROR;
@@ -984,12 +984,11 @@ always @(posedge clk) begin
         end
       STATE_FETCH_ABSOLUTE_1:
         begin
-// HERE
           mem_bus_enable <= 0;
 
           case (absolute_count)
-            1: ea[7:0]  <= mem_read;
-            2: ea[15:8] <= mem_read;
+            1: ea[7:0]   <= mem_read;
+            2: ea[15:8]  <= mem_read;
             3: ea[23:16] <= mem_read;
           endcase
 
@@ -998,6 +997,8 @@ always @(posedge clk) begin
               state <= STATE_FETCH_DIRECT_PAGE;
             end else if (addressing_mode == MODE_ABSOLUTE) begin
               state <= STATE_FETCH_IMMEDIATE_0;
+            end else if (addressing_mode == MODE_STACK_RELATIVE) begin
+              state <= STATE_FETCH_STACK_INDEXED;
             end else begin
               offset <= addressing_mode == MODE_ABSOLUTE_X ? reg_x : reg_y;
               state <= STATE_FETCH_INDEXED;
@@ -1008,6 +1009,11 @@ always @(posedge clk) begin
       STATE_FETCH_DIRECT_PAGE:
         begin
           if (! is_emulation_8) ea <= ea + dr;
+          state <= STATE_FETCH_IMMEDIATE_0;
+        end
+      STATE_FETCH_STACK_INDEXED:
+        begin
+          ea <= ea + sp;
           state <= STATE_FETCH_IMMEDIATE_0;
         end
       STATE_FETCH_INDEXED:

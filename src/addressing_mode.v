@@ -164,7 +164,7 @@ always @ * begin
           3'b000:
             begin
               mode <= MODE_STACK_RELATIVE;
-              extra_bytes <= 0;
+              extra_bytes <= 1;
             end
           3'b001:
             begin
@@ -176,10 +176,15 @@ always @ * begin
               mode <= MODE_ABSOLUTE;
               extra_bytes <= 3;
             end
+          3'b100:
+            begin
+              mode <= MODE_STACK_INDIRECT_Y;
+              extra_bytes <= 3;
+            end
           3'b101:
             begin
-              mode <= MODE_INDEXED_X;
-              extra_bytes <= 1;
+              mode <= MODE_INDIRECT_Y;
+              extra_bytes <= 2;
             end
           3'b111:
             begin

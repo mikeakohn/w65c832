@@ -15,8 +15,8 @@ parameter MODE_NONE       = 7;
 
 parameter MODE_STACK_RELATIVE      = 9;
 parameter MODE_DP_INDIRECT         = 10;
-//parameter MODE_ABSOLUTE_24         = 11;
-parameter MODE_STACK_INDIRECT      = 12;
+//parameter MODE_ABSOLUTE_24       = 11;
+parameter MODE_STACK_INDIRECT_Y    = 12;
 parameter MODE_DP_INDIRECT_INDEXED = 13;
-//parameter MODE_INDEXED_24          = 14;
+//parameter MODE_INDEXED_24        = 14;
 
