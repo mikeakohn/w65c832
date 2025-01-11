@@ -29,6 +29,13 @@ lcd:
 	naken_asm -l -type bin -o rom.bin -I$(NAKEN_INCLUDE) test/lcd.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
+winbond_lcd:
+	naken_asm -l -type bin -o rom.bin -I$(NAKEN_INCLUDE) test/winbond_lcd.asm
+	python3 tools/bin2txt.py rom.bin > rom.txt
+
+winbond_data:
+	naken_asm -l -type bin -o data_c000.bin -I$(NAKEN_INCLUDE) test/winbond_data.asm
+
 jml_blink:
 	naken_asm -l -type bin -o rom.bin test/jml_blink.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
@@ -53,6 +60,9 @@ serlcd:
 	naken_asm -l -type bin -o rom.bin test/serlcd.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
+extra_modes:
+	naken_asm -l -type bin -o rom.bin test/extra_modes.asm
+	python3 tools/bin2txt.py rom.bin > rom.txt
 
 bootloader:
 	naken_asm -l -type bin -o rom.bin test/bootloader.asm

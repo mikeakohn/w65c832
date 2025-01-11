@@ -137,7 +137,7 @@ reg [7:0] block_source;
 //reg [15:0] block_destination;
 
 // Addressing mode.
-wire [2:0] addressing_mode;
+wire [3:0] addressing_mode;
 wire [2:0] extra_bytes;
 reg        indirect_count;
 reg  [2:0] absolute_count;
@@ -191,13 +191,6 @@ assign flag_d   = flags[FLAG_D];
 assign flag_i   = flags[FLAG_I];
 assign flag_z   = flags[FLAG_Z];
 assign flag_c   = flags[FLAG_C];
-
-// Eeprom.
-//reg  [8:0] eeprom_count;
-//wire [7:0] eeprom_data_out;
-//reg [10:0] eeprom_address;
-//reg eeprom_strobe = 0;
-//wire eeprom_ready;
 
 // Debug.
 //reg [7:0] debug_0 = 0;
@@ -454,8 +447,6 @@ end
 
 // This block is the main CPU instruction execute state machine.
 always @(posedge clk) begin
-  //if (mem_bus_halted) was_ever_halted <= 1;
-
   if (!button_reset)
     state <= STATE_RESET;
   else if (!button_halt)
@@ -479,7 +470,6 @@ always @(posedge clk) begin
           mem_bus_enable <= 0;
           mem_bus_reset <= 1;
           delay_loop <= 12000;
-          //eeprom_strobe <= 0;
           reg_a <= 0;
           reg_x <= 0;
           reg_y <= 0;
@@ -489,7 +479,6 @@ always @(posedge clk) begin
           sp <= 16'h1ff;
           bank <= 0;
           state <= STATE_DELAY_LOOP;
-          //was_ever_halted <= 0;
         end
       STATE_DELAY_LOOP:
         begin
@@ -897,7 +886,21 @@ always @(posedge clk) begin
                     state <= STATE_FETCH_OP_0;
                   end
                 default:
-                  state <= STATE_ERROR;
+                  begin
+//HERE
+                    case (addressing_mode)
+                      //MODE_STACK_RELATIVE: state <= STATE_FETCH_STACK_REL_0;
+                      MODE_ABSOLUTE:   state <= STATE_FETCH_ABSOLUTE_0;
+                      //MODE_INDIRECT_X: state <= STATE_FETCH_INDIRECT_0;
+                      //MODE_INDIRECT_Y: state <= STATE_FETCH_INDIRECT_0;
+                      //MODE_ABSOLUTE_X: state <= STATE_FETCH_ABSOLUTE_0;
+                      //MODE_ABSOLUTE_Y: state <= STATE_FETCH_ABSOLUTE_0;
+                      default:         state <= STATE_ERROR;
+                    endcase
+
+                    //state <= STATE_ERROR;
+                    next_state <= STATE_EXECUTE_01_0;
+                  end
             endcase
           endcase
         end
@@ -981,11 +984,13 @@ always @(posedge clk) begin
         end
       STATE_FETCH_ABSOLUTE_1:
         begin
+// HERE
           mem_bus_enable <= 0;
 
           case (absolute_count)
             1: ea[7:0]  <= mem_read;
             2: ea[15:8] <= mem_read;
+            3: ea[23:16] <= mem_read;
           endcase
 
           if (absolute_count == extra_bytes)

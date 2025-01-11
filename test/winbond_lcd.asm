@@ -466,7 +466,7 @@ mandelbrot_stop:
   SET_M8_X8
   ldx color
 
-  lda colors+0,x
+  lda.l colors+0,x
   sta SPI_TX+0
   lda colors+1,x
   sta SPI_TX+1

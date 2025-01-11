@@ -5,7 +5,7 @@
 //   Board: iceFUN iCE40 HX8K
 // License: MIT
 //
-// Copyright 2024 by Michael Kohn
+// Copyright 2024-2025 by Michael Kohn
 
 `include "addressing_mode.vinc"
 
@@ -14,7 +14,7 @@ module addressing_mode
   input [1:0] cc,
   input [2:0] bbb,
   input [2:0] aaa,
-  output reg [2:0] mode,
+  output reg [3:0] mode,
   output reg [2:0] extra_bytes
 );
 
@@ -174,7 +174,7 @@ always @ * begin
           3'b011:
             begin
               mode <= MODE_ABSOLUTE;
-              extra_bytes <= 2;
+              extra_bytes <= 3;
             end
           3'b101:
             begin

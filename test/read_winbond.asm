@@ -20,12 +20,13 @@ start:
 main:
   ;lda 0xc000
   ;lda 0xc005
-  lda.b #2
+  lda.b #1
   pha
   ;pld
   plb
-  ;lda 0xc001
+  lda 0xc000
 
+.if 0
   lda.b #1
   sta 0x0000
 
@@ -33,6 +34,7 @@ main:
   pha
   plb
   lda 0x0000
+.endif
 
   brk
 
