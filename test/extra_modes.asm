@@ -31,8 +31,14 @@ main:
   jsr spi_send_data
 
   ;; Test new modes.
+  ldx.l #1
+
+  SET_M32_X32_FULL
+  lda 0x1_0000, x
+  SET_M8_X32
+
   ;lda 0x1_c000
-  lda 0x1_0000
+  ;lda 0x1_0000
   ;lda 0xc000
   ;lda 0x401d
   ;lda [0x30]

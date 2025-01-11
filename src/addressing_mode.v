@@ -163,7 +163,7 @@ always @ * begin
         case (bbb)
           3'b000:
             begin
-              mode <= MODE_IMMEDIATE;
+              mode <= MODE_STACK_RELATIVE;
               extra_bytes <= 0;
             end
           3'b001:
@@ -184,7 +184,7 @@ always @ * begin
           3'b111:
             begin
               mode <= MODE_ABSOLUTE_X;
-              extra_bytes <= 2;
+              extra_bytes <= 3;
             end
           default:
             begin

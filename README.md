@@ -331,11 +331,11 @@ cc = 11
 |000|(sr, s) (2 bytes, stack relative)                     -missing-
 |001|[dp] (2 bytes, direct page indirect long)             -missing-
 |010|
-|011|absolute24 (4 bytes)                                  -missing-
+|011|absolute24 (4 bytes)
 |100|(sr, s), y (2 bytes, stack relative indirect)         -missing-
 |101|[dp], Y (2 bytes, direct page indirect long indexed)  -missing-
 |110|
-|111|absolute24, x (4 bytes, absolute long indexed)        -missing-
+|111|absolute24, x (4 bytes, absolute long indexed)
 
 Other 65C816 Instructions
 

@@ -893,7 +893,7 @@ always @(posedge clk) begin
                       MODE_ABSOLUTE:   state <= STATE_FETCH_ABSOLUTE_0;
                       //MODE_INDIRECT_X: state <= STATE_FETCH_INDIRECT_0;
                       //MODE_INDIRECT_Y: state <= STATE_FETCH_INDIRECT_0;
-                      //MODE_ABSOLUTE_X: state <= STATE_FETCH_ABSOLUTE_0;
+                      MODE_ABSOLUTE_X: state <= STATE_FETCH_ABSOLUTE_0;
                       //MODE_ABSOLUTE_Y: state <= STATE_FETCH_ABSOLUTE_0;
                       default:         state <= STATE_ERROR;
                     endcase
