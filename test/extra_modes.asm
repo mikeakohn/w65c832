@@ -66,7 +66,9 @@ test_indirect_24:
   rts
 
 test_indirect:
-  lda.b #0x00
+  ldx.l #9
+  ldy.l #6
+  lda.b #0x01
   sta 0x30
   lda.b #0x40
   sta 0x31

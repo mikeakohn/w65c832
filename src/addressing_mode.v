@@ -141,6 +141,11 @@ always @ * begin
               mode <= MODE_ABSOLUTE;
               extra_bytes <= 2;
             end
+          3'b100:
+            begin
+              mode <= MODE_INDIRECT;
+              extra_bytes <= 1;
+            end
           3'b101:
             begin
               mode <= MODE_INDEXED_X;

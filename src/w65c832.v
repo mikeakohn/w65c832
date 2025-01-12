@@ -776,6 +776,10 @@ always @(posedge clk) begin
                   end else begin
                     state <= STATE_ERROR;
                   end
+                end else if (bbb == 3'b100) begin
+                  // Indirect addressing mode (dp).
+                  state <= STATE_FETCH_INDIRECT_0;
+                  next_state <= STATE_EXECUTE_01_0;
                 end else begin
                   case (addressing_mode)
                     MODE_IMMEDIATE:
@@ -949,7 +953,8 @@ always @(posedge clk) begin
           endcase
 
           if (indirect_count == 1) begin
-            if (addressing_mode == MODE_INDIRECT_X)
+            if (addressing_mode == MODE_INDIRECT_X ||
+                addressing_mode == MODE_INDIRECT)
               state <= STATE_FETCH_IMMEDIATE_0;
             else
               state <= STATE_FETCH_INDIRECT_Y;
