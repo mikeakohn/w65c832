@@ -34,7 +34,9 @@ main:
 
   ;jsr test_absolute24_x
   ;jsr test_absolute24
-  jsr test_indirect
+  ;jsr test_indirect_24
+  jsr test_indirect_24_y
+  ;jsr test_indirect
   ;jsr test_indirect24
   ;jsr test_stack_relative
   ;jsr test_stack_indirect_y
@@ -56,6 +58,8 @@ run:
   jmp run
 
 test_indirect_24:
+  ldx.l #9
+  ldy.l #6
   lda.b #0x00
   sta 0x30
   lda.b #0x00
@@ -63,6 +67,18 @@ test_indirect_24:
   lda.b #0x01
   sta 0x32
   lda [0x30]
+  rts
+
+test_indirect_24_y:
+  ldx.l #9
+  ldy.l #6
+  lda.b #0x00
+  sta 0x30
+  lda.b #0x00
+  sta 0x31
+  lda.b #0x01
+  sta 0x32
+  lda [0x30], y
   rts
 
 test_indirect:

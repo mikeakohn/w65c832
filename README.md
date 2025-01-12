@@ -117,7 +117,7 @@ In 8 bit mode, X and Y will add only 8 bit to the absolute 16 bit address.
 In 32/16 mode, X and Y is added to the absolute 24 bit address calculated
 by the program bank register (pbr) along with the 2 bytes from the opcode.
 The size of X and Y (8 bits, 16 bits, 32 bits) depends on the current mode
-of the CPU based on flag_x and flag_e16. 
+of the CPU based on flag_x and flag_e16.
 
 Indirect
 --------
@@ -329,11 +329,11 @@ cc = 11
 |bbb|addressing mode|
 |---|---------------|
 |000|sr, s (2 bytes, stack relative)
-|001|[dp] (2 bytes, direct page indirect long)             -missing-
+|001|[dp] (2 bytes, direct page indirect long)
 |010|
 |011|absolute24 (4 bytes)
-|100|(sr, s), y (2 bytes, stack relative indirect)         -missing-
-|101|[dp], Y (2 bytes, direct page indirect long indexed)  -missing-
+|100|(sr, s), y (2 bytes, stack relative indirect)
+|101|[dp], Y (2 bytes, direct page indirect long indexed)
 |110|
 |111|absolute24, x (4 bytes, absolute long indexed)
 

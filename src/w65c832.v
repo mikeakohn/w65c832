@@ -139,7 +139,8 @@ reg [7:0] block_source;
 // Addressing mode.
 wire [3:0] addressing_mode;
 wire [2:0] extra_bytes;
-reg        indirect_count;
+reg  [1:0] indirect_count;
+reg  [1:0] indirect_total;
 reg  [2:0] absolute_count;
 reg  [2:0] immediate_count;
 reg  [2:0] push_count;
@@ -504,6 +505,7 @@ always @(posedge clk) begin
         begin
           source <= 0;
           indirect_count <= 0;
+          indirect_total <= 1;
           absolute_count <= 0;
           immediate_count <= 0;
           push_count <= 0;
@@ -896,9 +898,17 @@ always @(posedge clk) begin
                       MODE_STACK_RELATIVE: state <= STATE_FETCH_ABSOLUTE_0;
                       MODE_ABSOLUTE:       state <= STATE_FETCH_ABSOLUTE_0;
                       MODE_INDIRECT_S_Y:   state <= STATE_FETCH_INDIRECT_0;
-                      //MODE_INDIRECT_Y:     state <= STATE_FETCH_INDIRECT_0;
                       MODE_ABSOLUTE_X:     state <= STATE_FETCH_ABSOLUTE_0;
-                      //MODE_ABSOLUTE_Y: state <= STATE_FETCH_ABSOLUTE_0;
+                      MODE_INDIRECT_24:
+                        begin
+                          state <= STATE_FETCH_INDIRECT_0;
+                          indirect_total <= 2;
+                        end
+                      MODE_INDIRECT_24_Y:
+                        begin
+                          state <= STATE_FETCH_INDIRECT_0;
+                          indirect_total <= 2;
+                        end
                       default:             state <= STATE_ERROR;
                     endcase
 
@@ -948,11 +958,12 @@ always @(posedge clk) begin
           indirect_count <= indirect_count + 1;
 
           case (indirect_count)
-            0: ea[7:0]   <= mem_read;
-            1: ea[15:8]  <= mem_read;
+            0: ea[7:0]    <= mem_read;
+            1: ea[15:8]   <= mem_read;
+            2: ea[23:16] <= mem_read;
           endcase
 
-          if (indirect_count == 1) begin
+          if (indirect_count == indirect_total) begin
             if (addressing_mode == MODE_INDIRECT_X ||
                 addressing_mode == MODE_INDIRECT)
               state <= STATE_FETCH_IMMEDIATE_0;
