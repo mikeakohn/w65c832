@@ -39,7 +39,7 @@ reg [1:0] tx_state = STATE_IDLE;
 assign tx_busy  = tx_state != STATE_IDLE;
 
 reg  rx_ready_flag = 0;
-wire rx_ready = rx_ready_flag;
+assign rx_ready = rx_ready_flag;
 
 // 12,000,000 MHz / 9600 = 1250 clocks.
 // 12,000,000 MHz / 9600 =  625 clocks for double speed to make sure

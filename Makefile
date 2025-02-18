@@ -15,7 +15,13 @@ SOURCE= \
 
 default:
 	yosys -q -p "synth_ice40 -top $(PROGRAM) -json $(PROGRAM).json" $(SOURCE)
-	nextpnr-ice40 -r --hx8k --json $(PROGRAM).json --package cb132 --asc $(PROGRAM).asc --opt-timing --pcf icefun.pcf
+	nextpnr-ice40 -r \
+	  --hx8k \
+	  --json $(PROGRAM).json \
+	  --package cb132 \
+	  --asc $(PROGRAM).asc \
+	  --opt-timing \
+	  --pcf icefun.pcf
 	icepack $(PROGRAM).asc $(PROGRAM).bin
 
 program:
