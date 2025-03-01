@@ -14,7 +14,8 @@ SOURCE= \
   src/uart.v
 
 default:
-	yosys -q -p "synth_ice40 -top $(PROGRAM) -json $(PROGRAM).json" $(SOURCE)
+	yosys -q \
+	  -p "synth_ice40 -top $(PROGRAM) -json $(PROGRAM).json" $(SOURCE)
 	nextpnr-ice40 -r \
 	  --hx8k \
 	  --json $(PROGRAM).json \
@@ -23,6 +24,19 @@ default:
 	  --opt-timing \
 	  --pcf icefun.pcf
 	icepack $(PROGRAM).asc $(PROGRAM).bin
+
+tang_nano:
+	yosys -q \
+	  -p "synth_gowin -top $(PROGRAM) -json $(PROGRAM).json -family gw2a" \
+	  $(SOURCE)
+	nextpnr-himbaechel -r \
+	  --json $(PROGRAM).json \
+	  --write $(PROGRAM)_pnr.json \
+	  --freq 27 \
+	  --vopt family=GW2A-18C \
+	  --vopt cst=tangnano20k.cst \
+	  --device GW2AR-LV18QN88C8/I7
+	gowin_pack -d GW2A-18C -o $(PROGRAM).fs $(PROGRAM)_pnr.json
 
 program:
 	iceFUNprog $(PROGRAM).bin
@@ -76,6 +90,7 @@ bootloader:
 
 clean:
 	@rm -f $(PROGRAM).bin $(PROGRAM).json $(PROGRAM).asc *.lst
+	@rm -f $(PROGRAM)_pnr.json
 	@rm -f blink.bin test_alu.bin test_shift.bin test_subroutine.bin
 	@rm -f button.bin
 	@echo "Clean!"
