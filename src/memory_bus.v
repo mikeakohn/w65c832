@@ -92,13 +92,15 @@ assign bus_halt = flash_rom_enable && flash_rom_busy;
 
 always @ * begin
   if (bank == 3 || upper_page != 0) begin
-    data_out = flash_rom_data_out;
+    data_out <= flash_rom_data_out;
   end else if (bank == 0) begin
-    data_out = ram_data_out;
+    data_out <= ram_data_out;
   end else if (bank == 1) begin
-    data_out = rom_data_out;
+    data_out <= rom_data_out;
   end else if (bank == 2) begin
-    data_out = peripherals_data_out;
+    data_out <= peripherals_data_out;
+  end else begin
+    data_out <= 0;
   end
 end
 

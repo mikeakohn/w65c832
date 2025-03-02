@@ -1,6 +1,7 @@
 
-IO_LOC "clk" 4;
-CLOCK_LOC "clk" BUFG;
+IO_LOC "raw_clk" 4;
+//CLOCK_LOC "raw_clk" BUFG;
+CLOCK_LOC "raw_clk";
 
 //IO_LOC "leds[0]" 15;
 //IO_LOC "leds[1]" 16;
@@ -19,7 +20,7 @@ IO_LOC "ioport_4"  77;
 //SPI peripheral 0.
 //IO_LOC "spi_cs_0" 76;
 IO_LOC "spi_clk_0"  80;
-IO_LOC spi_mosi_0"  42;
+IO_LOC "spi_mosi_0"  42;
 IO_LOC "spi_miso_0" 41;
 
 // SPI Peripheral 1 (SparkFun SerLCD).
@@ -29,8 +30,8 @@ IO_LOC "spi_miso_1" 86;
 IO_LOC "spi_clk_1"  79;
 
 // UART
-IO_LOC "uart_tx_0" 74;
-IO_LOC "uart_rx_0" 75;
+IO_LOC "uart_tx_0" 25;
+IO_LOC "uart_rx_0" 29;
 
 // Speaker.
 IO_LOC "speaker_p" 56;
@@ -50,10 +51,10 @@ IO_PORT "button_0"              IO_TYPE=LVCMOS33;
 // Windbond W25Q128JV 16MB flash memory.
 // do connects to do pin on flash chip and is an input to the w65c832.
 // di connects to di pin on flash chip and is an output from the w65c832.
-IO_LOC "windbond_reset" 28;
-IO_LOC "windbond_wp"    26;
-IO_LOC "windbond_do"    25;
-IO_LOC "windbond_di"    29;
+IO_LOC "windbond_reset" 17;
+IO_LOC "windbond_wp"    20;
+IO_LOC "windbond_do"    19;
+IO_LOC "windbond_di"    18;
 IO_LOC "windbond_clk"   30;
 IO_LOC "windbond_cs"    31;
 

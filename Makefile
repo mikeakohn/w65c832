@@ -27,8 +27,8 @@ default:
 
 tang_nano:
 	yosys -q \
-	  -p "synth_gowin -top $(PROGRAM) -json $(PROGRAM).json -family gw2a" \
-	  $(SOURCE)
+	  -D TANG_NANO \
+	  -p "read_verilog $(SOURCE); synth_gowin -json $(PROGRAM).json -family gw2a"
 	nextpnr-himbaechel -r \
 	  --json $(PROGRAM).json \
 	  --write $(PROGRAM)_pnr.json \
@@ -37,6 +37,11 @@ tang_nano:
 	  --vopt cst=tangnano20k.cst \
 	  --device GW2AR-LV18QN88C8/I7
 	gowin_pack -d GW2A-18C -o $(PROGRAM).fs $(PROGRAM)_pnr.json
+
+old:
+	yosys -q \
+	  -p "synth_gowin -top $(PROGRAM) -json $(PROGRAM).json -family gw2a" \
+	  $(SOURCE)
 
 program:
 	iceFUNprog $(PROGRAM).bin
