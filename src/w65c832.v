@@ -836,6 +836,8 @@ always @(posedge clk) begin
                         begin
                           reg_a[7:0]  <= reg_a[15:8];
                           reg_a[15:8] <= reg_a[7:0];
+                          flags[FLAG_Z] <= reg_a[15:0] == 0;
+                          flags[FLAG_N] <= reg_a[7];
                           state <= STATE_FETCH_OP_0;
                         end
                     endcase
