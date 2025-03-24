@@ -771,7 +771,7 @@ always @(posedge clk) begin
                     default: state <= STATE_ERROR;
                   endcase
 
-                  if (aaa[2:1] != 2'b00)
+                  if (aaa[1:0] == 2'b10)
                     result <= aaa[2] == 0 ? reg_y : reg_x;
 
                   size_imm <= size_x;
