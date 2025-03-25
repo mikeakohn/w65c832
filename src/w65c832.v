@@ -856,32 +856,18 @@ always @(posedge clk) begin
                         else
                           sp[15:0] <= reg_a[15:0];
                       OP_TSC:
-                        if (size_m == SIZE_8)
-                          reg_a[7:0] <= sp[7:0];
-                        else
-                          reg_a[15:0] <= sp[15:0];
+                        result <= sp;
                       OP_TCD:
                         if (size_m == SIZE_8)
                           dr[7:0] <= reg_a[7:0];
                         else
                           dr[15:0] <= reg_a[15:0];
                       OP_TDC:
-                        if (size_m == SIZE_8)
-                          reg_a[7:0] <= dr[7:0];
-                        else
-                          reg_a[15:0] <= dr[15:0];
+                        result <= dr;
                       OP_TXY:
-                        case (size_x)
-                          SIZE_8:  reg_y[7:0]  <= reg_x[7:0];
-                          SIZE_16: reg_y[15:0] <= reg_x[15:0];
-                          SIZE_32: reg_y[31:0] <= reg_x[31:0];
-                        endcase
+                        result <= reg_x;
                       OP_TYX:
-                        case (size_x)
-                          SIZE_8:  reg_x[7:0]  <= reg_y[7:0];
-                          SIZE_16: reg_x[15:0] <= reg_y[15:0];
-                          SIZE_32: reg_x[31:0] <= reg_y[31:0];
-                        endcase
+                        result <= reg_y;
                       OP_STP:
                         // FIXME: Stop clock?
                         state <= STATE_HALTED;
@@ -898,7 +884,14 @@ always @(posedge clk) begin
                         end
                     endcase
 
-                    state <= STATE_FETCH_OP_0;
+                    if (aaa == OP_TDC || OP_TSC)
+                      state <= STATE_WRITEBACK_A;
+                    else if (aaa == OP_TYX)
+                      state <= STATE_WRITEBACK_Y;
+                    else if (aaa == OP_TXY)
+                      state <= STATE_WRITEBACK_X;
+                    else
+                      state <= STATE_FETCH_OP_0;
                   end
                 default:
                   begin
