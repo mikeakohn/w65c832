@@ -884,7 +884,7 @@ always @(posedge clk) begin
                         end
                     endcase
 
-                    if (aaa == OP_TDC || OP_TSC)
+                    if (aaa == OP_TDC || aaa == OP_TSC)
                       state <= STATE_WRITEBACK_A;
                     else if (aaa == OP_TYX)
                       state <= STATE_WRITEBACK_Y;
