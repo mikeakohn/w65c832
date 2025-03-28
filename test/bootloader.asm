@@ -4,7 +4,7 @@
 ; Tested with:
 ; - iceFUN iCE40 HX8K FPGA
 ; - Adafruit USB to TTL serial cable
-; - Minicom 2.8 (9600 baud, 8N2, no handshaking)
+; - Minicom 2.9 (9600 baud, 8N2, no handshaking)
 
 ; cable connnections:
 ;  - RED   - 5V (not connected)
@@ -21,10 +21,7 @@
 
 .65832
 
-UART_TX_BUSY   equ 1
-UART_RX_READY  equ 2
-BUTTON         equ 0x8000
-PORT0          equ 0x8008
+.include "test/registers.inc"
 
 SOH equ 0x01  ; start of header
 EOT equ 0x04  ; end of transmission
@@ -32,12 +29,8 @@ ACK equ 0x06  ; acknowledged
 NAK equ 0x15  ; not acknowledged
 
 address equ 0x10
-packet_count equ 0x12
-packet_data equ 0x13
-
-.macro SET_M8_X8
-  sep #0x30
-.endm
+packet_count equ 0x14
+packet_data equ 0x18
 
 ; program is loaded into RAM here
 ram_start equ 0x200
@@ -63,16 +56,20 @@ message:
 message_loop:
   lda message_text,x
   cmp.b #'\0'
-  beq wait_button_release
+  beq button_press
   jsr write_uart
   inx
   jmp message_loop
 
-wait_button_release:
+button_press:
   lda.b #1
   bit BUTTON
-  beq begin_transfer
-  jmp wait_button_release
+  beq button_press
+
+button_release:
+  lda.b #1
+  bit BUTTON
+  bne button_release
 
 begin_transfer:
   lda.b #ram_start & 255
