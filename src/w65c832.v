@@ -836,7 +836,7 @@ always @(posedge clk) begin
                         begin
                           reg_a[7:0]  <= reg_a[15:8];
                           reg_a[15:8] <= reg_a[7:0];
-                          flags[FLAG_Z] <= reg_a[15:0] == 0;
+                          flags[FLAG_Z] <= reg_a[7:0] == 0;
                           flags[FLAG_N] <= reg_a[7];
                           state <= STATE_FETCH_OP_0;
                         end
@@ -1511,6 +1511,9 @@ always @(posedge clk) begin
                         SIZE_32: reg_a[31:0] <= source[31:0];
                       endcase
                   endcase
+              endcase
+            2'b10:
+              case (bbb)
                 3'b110:
                   case (aaa)
                     OP_PLX:
