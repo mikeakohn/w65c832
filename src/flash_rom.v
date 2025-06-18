@@ -56,7 +56,8 @@ assign flash_reset = ~reset;
 
 always @(posedge clk) begin
   if (reset == 1) begin
-    busy <= 0;
+    busy   <= 0;
+    spi_cs <= 1;
     current_page <= 13'h1000;
     state <= STATE_IDLE;
   end else begin
