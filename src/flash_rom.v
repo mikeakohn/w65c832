@@ -69,14 +69,16 @@ always @(posedge clk) begin
       case (state)
         STATE_IDLE:
           begin
-            busy      <= 1;
-            spi_cs    <= 0;
-            cmd_count <= 0;
-            bit       <= 7;
-            mem_count <= 0;
-            temp <= address;
+            if (enable) begin
+              busy      <= 1;
+              spi_cs    <= 0;
+              cmd_count <= 0;
+              bit       <= 7;
+              mem_count <= 0;
+              temp <= address;
 
-            if (enable) state <= STATE_NEXT_OUT;
+              state <= STATE_NEXT_OUT;
+            end
           end
         STATE_NEXT_OUT:
           begin
