@@ -13,8 +13,6 @@
 
 module flash_rom
 (
-  //input [11:0] page,
-  //input [11:0] address,
   input [23:0] address,
   output reg [7:0] data_out,
   output reg busy,
@@ -35,8 +33,6 @@ parameter STATE_NEXT_OUT    = 2;
 parameter STATE_CLOCK_OUT_0 = 3;
 parameter STATE_CLOCK_OUT_1 = 4;
 
-parameter STATE_BREAK      = 9;
-
 parameter STATE_CLOCK_IN_0  = 5;
 parameter STATE_CLOCK_IN_1  = 6;
 parameter STATE_NEXT_IN     = 7;
@@ -54,8 +50,6 @@ reg [12:0] current_page = 13'h1000;
 wire [11:0] page;
 assign page = address[23:12];
 
-//assign busy = state != STATE_IDLE;
-
 // Always write-protect the Windbond flash chip.
 assign flash_wp = 1;
 assign flash_reset = ~reset;
@@ -68,19 +62,19 @@ always @(posedge clk) begin
   end else begin
     if (page == current_page) begin
       busy <= 0;
-      //state <= STATE_IDLE;
       data_out <= memory[address[11:0]];
     end else begin
       // Read page of flash into memory.
       case (state)
         STATE_IDLE:
           begin
-            busy <= 1;
-            spi_cs <= 0;
+            busy      <= 1;
+            spi_cs    <= 0;
             cmd_count <= 0;
-            bit <= 7;
+            bit       <= 7;
             mem_count <= 0;
             temp <= address;
+
             if (enable) state <= STATE_NEXT_OUT;
           end
         STATE_NEXT_OUT:
@@ -143,7 +137,6 @@ always @(posedge clk) begin
           end
         STATE_FINISH:
           begin
-            //data_out <= memory[address[11:0]];
             current_page <= { 1'b0, page };
             spi_cs <= 1;
             spi_do <= 0;
