@@ -1,0 +1,228 @@
+// W65C832 FPGA Soft Processor
+//  Author: Michael Kohn
+//   Email: mike@mikekohn.net
+//     Web: https://www.mikekohn.net/
+//   Board: iceFUN iCE40 HX8K
+// License: MIT
+//
+// Copyright 2024 by Michael Kohn
+
+// This creates 512 bytes of ROM on the FPGA itself and pages in the
+// memory from an SD card. There is a maxiumum of 16MB in the first
+// sectors that can be used starting at location 0xc000 on the card.
+
+module sd_card
+(
+  input [23:0] address,
+  output reg [7:0] data_out,
+  output reg busy,
+  output reg spi_cs,
+  output reg spi_clk,
+  output reg spi_do,
+  input  spi_di,
+  input  enable,
+  input  clk,
+  input  reset
+);
+
+parameter STATE_INIT         = 0;
+parameter STATE_SEND_RESET   = 1;
+parameter STATE_SEND_INIT    = 2;
+parameter STATE_CLOCK_0      = 3;
+parameter STATE_CLOCK_1      = 4;
+parameter STATE_IDLE         = 5;
+parameter STATE_SD_COMMAND   = 6;
+parameter STATE_START_SECTOR = 7;
+parameter STATE_READ_SECTOR  = 8;
+
+parameter STATE_FINISH       = 9;
+
+reg [7:0] memory [511:0];
+reg [3:0] state = STATE_IDLE;
+reg [3:0] nex4_state;
+reg [3:0] cmd_return_state;
+reg [2:0] bit;
+reg [3:0] cmd_count;
+reg [8:0] mem_count;
+
+reg [7:0] command [7:0];
+
+reg [3:0] init_count;
+
+reg [7:0] rx_buffer;
+reg [7:0] tx_buffer;
+reg [2:0] bit_count;
+
+reg [15:0] current_page;
+wire [14:0] page;
+assign page = address[23:12];
+
+always @(posedge clk) begin
+  if (reset == 1) begin
+    busy         <= 0;
+    spi_cs       <= 1;
+    init_count   <= 10;
+    command[6] <= 8'hff;
+    command[7] <= 8'hff;
+    current_page <= 16'h8000;
+    state <= STATE_INIT;
+  end else begin
+    if (page == current_page) begin
+      busy <= 0;
+      data_out <= memory[address[11:0]];
+    end else begin
+      case (state)
+        STATE_INIT:
+          begin
+            init_count <= init_count - 1;
+            next_state <= STATE_INIT;
+
+            if (init_count == 0) begin
+              cmd_count  <= 0;
+              state      <= STATE_SEND_RESET;
+            end else begin
+              tx_buffer  <= 8'hff;
+              bit_count  <= 0;
+              state      <= STATE_CLOCK_0;
+            end
+          end
+        STATE_SEND_RESET:
+          begin
+            command[0] <= 8'h40;
+            command[1] <= 8'h00;
+            command[2] <= 8'h00;
+            command[3] <= 8'h00;
+            command[4] <= 8'h00;
+            command[5] <= 8'h95;
+
+            cmd_return <= STATE_SEND_RESET;
+
+            if (cmd_count == 8) begin
+              if (rx_buffer == 8'h01)
+                state <= STATE_SEND_INIT;
+
+              cmd_count <= 0;
+              spi_cs <= 1;
+            end else begin
+              spi_cs <= 0;
+              state <= STATE_SD_COMMAND;
+            end
+          end
+        STATE_SEND_INIT:
+          begin
+            command[0] <= 8'h41;
+            command[1] <= 8'h00;
+            command[2] <= 8'h00;
+            command[3] <= 8'h00;
+            command[4] <= 8'h00;
+            command[5] <= 8'h00;
+
+            cmd_return <= STATE_SEND_INIT;
+
+            if (cmd_count == 8) begin
+              if (rx_buffer == 8'h01)
+                state <= STATE_IDLE;
+
+              cmd_count <= 0;
+              spi_cs <= 1;
+              spi_do <= 0;
+            end else begin
+              spi_cs <= 0;
+              state <= STATE_SD_COMMAND;
+            end
+          end
+        STATE_CLOCK_0:
+          begin
+            sclk <= 0;
+
+            if (bit_count != 0) rx_buffer <= { rx_buffer[6:0], miso };
+
+            tx_buffer <= tx_buffer << 1;
+            spi_do <= tx_buffer[7];
+
+            bit_count <= bit_count + 1;
+            state <= STATE_CLOCK_1;
+          end
+        STATE_CLOCK_1:
+          begin
+            sclk <= 1;
+
+            if (bit_count == 0) begin
+              state <= next_state;
+            end else begin
+              state <= STATE_CLOCK_0;
+            end
+          end
+        STATE_IDLE:
+          begin
+            if (enable) begin
+              busy      <= 1;
+              spi_cs    <= 0;
+              //cmd_count <= 0;
+              //bit       <= 7;
+              //mem_count <= 0;
+
+              command[0] <= 8'h51;
+              command[1] <= 8'h00;
+              command[2] <= address[23:16];
+              command[3] <= { address[15:9], 1'b0 };
+              command[4] <= 8'h00;
+              command[5] <= 8'h00;
+
+              cmd_return_state <= STATE_START_SECTOR;
+
+              state <= STATE_SD_COMMAND;
+            //else
+            //  busy <= 0;
+            end
+          end
+        STATE_SD_COMMAND:
+          begin
+            if (cmd_count == 8)
+              state <= cmd_return_state;
+            else
+              tx_buffer <= command[cmd_count];
+              state <= STATE_CLOCK_0;
+
+            cmd_count <= cmd_count + 1;
+          end
+        STATE_START_SECTOR:
+          begin
+            // FIXME: Should another byte be read in first before
+            // checking 0xfe? rx_buffer should have a status byte now
+            // which shouldn't be 0xfe.
+            if (rx_buffer == 8'hfe) begin
+              mem_count  <= 0;
+              next_state <= STATE_READ_SECTOR;
+              state      <= STATE_CLOCK_0;
+            end else begin
+              next_state <= STATE_START_SECTOR;
+              state      <= STATE_CLOCK_0;
+            end
+          end
+        STATE_READ_SECTOR:
+          begin
+            memory[mem_count] <= rx_buffer;
+
+            if (mem_count == 511)
+              state <= STATE_FINISH;
+            else
+              state <= STATE_CLOCK_0;
+
+            mem_count <= mem_count + 1;
+          end
+        STATE_FINISH:
+          begin
+            current_page <= { 1'b0, page };
+            spi_cs <= 1;
+            spi_do <= 0;
+            busy   <= 0;
+            state  <= STATE_IDLE;
+          end
+      endcase
+    end
+  end
+end
+
+endmodule
+
