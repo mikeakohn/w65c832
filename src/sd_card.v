@@ -55,7 +55,7 @@ reg [2:0] bit_count;
 
 reg [15:0] current_page;
 wire [14:0] page;
-assign page = address[23:12];
+assign page = address[23:9];
 
 always @(posedge clk) begin
   if (reset == 1) begin
@@ -67,13 +67,15 @@ always @(posedge clk) begin
   end else begin
     if (page == current_page) begin
       busy <= 0;
-      data_out <= memory[address[11:0]];
+      data_out <= memory[address[8:0]];
     end else begin
       case (state)
         STATE_INIT:
           begin
             init_count <= init_count - 1;
             next_state <= STATE_INIT;
+
+            busy <= 1;
 
             if (init_count == 0) begin
               cmd_count  <= 0;
@@ -102,10 +104,10 @@ always @(posedge clk) begin
                 state <= STATE_SEND_INIT;
 
               cmd_count <= 0;
-              spi_cs <= 1;
+              spi_cs    <= 1;
             end else begin
               spi_cs <= 0;
-              state <= STATE_SD_COMMAND;
+              state  <= STATE_SD_COMMAND;
             end
           end
         STATE_SEND_INIT:
@@ -120,15 +122,17 @@ always @(posedge clk) begin
             cmd_return_state <= STATE_SEND_INIT;
 
             if (cmd_count == 8) begin
-              if (rx_buffer == 8'h01)
+              if (rx_buffer[0] == 1'b0) begin
                 state <= STATE_IDLE;
+                busy  <= 0;
+              end
 
               cmd_count <= 0;
-              spi_cs <= 1;
-              spi_do <= 0;
+              spi_cs    <= 1;
+              spi_do    <= 0;
             end else begin
               spi_cs <= 0;
-              state <= STATE_SD_COMMAND;
+              state  <= STATE_SD_COMMAND;
             end
           end
         STATE_CLOCK_0:
@@ -169,6 +173,7 @@ always @(posedge clk) begin
               command[4] <= 8'h00;
               command[5] <= 8'h00;
 
+              cmd_count        <= 0;
               cmd_return_state <= STATE_START_SECTOR;
 
               state <= STATE_SD_COMMAND;
@@ -178,11 +183,12 @@ always @(posedge clk) begin
           end
         STATE_SD_COMMAND:
           begin
-            if (cmd_count == 8)
+            if (cmd_count == 8) begin
               state <= cmd_return_state;
-            else
+            end else begin
               tx_buffer <= command[cmd_count];
               state <= STATE_CLOCK_0;
+            end
 
             cmd_count <= cmd_count + 1;
           end
