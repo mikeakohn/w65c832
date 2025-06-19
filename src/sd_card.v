@@ -39,7 +39,7 @@ parameter STATE_FINISH       = 9;
 
 reg [7:0] memory [511:0];
 reg [3:0] state = STATE_IDLE;
-reg [3:0] nex4_state;
+reg [3:0] next_state;
 reg [3:0] cmd_return_state;
 reg [2:0] bit;
 reg [3:0] cmd_count;
@@ -59,11 +59,9 @@ assign page = address[23:12];
 
 always @(posedge clk) begin
   if (reset == 1) begin
-    busy         <= 0;
-    spi_cs       <= 1;
-    init_count   <= 10;
-    command[6] <= 8'hff;
-    command[7] <= 8'hff;
+    busy       <= 0;
+    spi_cs     <= 1;
+    init_count <= 10;
     current_page <= 16'h8000;
     state <= STATE_INIT;
   end else begin
@@ -94,8 +92,10 @@ always @(posedge clk) begin
             command[3] <= 8'h00;
             command[4] <= 8'h00;
             command[5] <= 8'h95;
+            command[6] <= 8'hff;
+            command[7] <= 8'hff;
 
-            cmd_return <= STATE_SEND_RESET;
+            cmd_return_state <= STATE_SEND_RESET;
 
             if (cmd_count == 8) begin
               if (rx_buffer == 8'h01)
@@ -117,7 +117,7 @@ always @(posedge clk) begin
             command[4] <= 8'h00;
             command[5] <= 8'h00;
 
-            cmd_return <= STATE_SEND_INIT;
+            cmd_return_state <= STATE_SEND_INIT;
 
             if (cmd_count == 8) begin
               if (rx_buffer == 8'h01)
@@ -133,9 +133,9 @@ always @(posedge clk) begin
           end
         STATE_CLOCK_0:
           begin
-            sclk <= 0;
+            spi_clk <= 0;
 
-            if (bit_count != 0) rx_buffer <= { rx_buffer[6:0], miso };
+            if (bit_count != 0) rx_buffer <= { rx_buffer[6:0], spi_di };
 
             tx_buffer <= tx_buffer << 1;
             spi_do <= tx_buffer[7];
@@ -145,7 +145,7 @@ always @(posedge clk) begin
           end
         STATE_CLOCK_1:
           begin
-            sclk <= 1;
+            spi_clk <= 1;
 
             if (bit_count == 0) begin
               state <= next_state;
