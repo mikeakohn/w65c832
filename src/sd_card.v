@@ -38,10 +38,9 @@ parameter STATE_READ_SECTOR  = 8;
 parameter STATE_FINISH       = 9;
 
 reg [7:0] memory [511:0];
-reg [3:0] state = STATE_IDLE;
+reg [3:0] state = STATE_INIT;
 reg [3:0] next_state;
 reg [3:0] cmd_return_state;
-reg [2:0] bit;
 reg [3:0] cmd_count;
 reg [8:0] mem_count;
 
@@ -53,7 +52,7 @@ reg [7:0] rx_buffer;
 reg [7:0] tx_buffer;
 reg [2:0] bit_count;
 
-reg [15:0] current_page;
+reg [15:0] current_page = 16'h8000;;
 wire [14:0] page;
 assign page = address[23:9];
 
@@ -64,8 +63,8 @@ always @(posedge clk) begin
     init_count <= 10;
     current_page <= 16'h8000;
     state <= STATE_INIT;
-  end else begin
-    if (page == current_page) begin
+  end else if (enable == 1) begin
+    if (current_page == { 1'b0, page }) begin
       busy <= 0;
       data_out <= memory[address[8:0]];
     end else begin
@@ -124,7 +123,7 @@ always @(posedge clk) begin
             if (cmd_count == 8) begin
               if (rx_buffer[0] == 1'b0) begin
                 state <= STATE_IDLE;
-                busy  <= 0;
+                //busy  <= 0;
               end
 
               cmd_count <= 0;
@@ -162,9 +161,6 @@ always @(posedge clk) begin
             if (enable) begin
               busy      <= 1;
               spi_cs    <= 0;
-              //cmd_count <= 0;
-              //bit       <= 7;
-              //mem_count <= 0;
 
               command[0] <= 8'h51;
               command[1] <= 8'h00;
@@ -175,10 +171,10 @@ always @(posedge clk) begin
 
               cmd_count        <= 0;
               cmd_return_state <= STATE_START_SECTOR;
+              next_state       <= STATE_SD_COMMAND;
 
               state <= STATE_SD_COMMAND;
-            //else
-            //  busy <= 0;
+              //state <= STATE_FINISH;
             end
           end
         STATE_SD_COMMAND:
@@ -200,11 +196,11 @@ always @(posedge clk) begin
             if (rx_buffer == 8'hfe) begin
               mem_count  <= 0;
               next_state <= STATE_READ_SECTOR;
-              state      <= STATE_CLOCK_0;
             end else begin
               next_state <= STATE_START_SECTOR;
-              state      <= STATE_CLOCK_0;
             end
+
+            state <= STATE_CLOCK_0;
           end
         STATE_READ_SECTOR:
           begin
@@ -220,9 +216,9 @@ always @(posedge clk) begin
         STATE_FINISH:
           begin
             current_page <= { 1'b0, page };
+            busy   <= 0;
             spi_cs <= 1;
             spi_do <= 0;
-            busy   <= 0;
             state  <= STATE_IDLE;
           end
       endcase
