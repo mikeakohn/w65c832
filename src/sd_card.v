@@ -11,6 +11,10 @@
 // memory from an SD card. There is a maxiumum of 16MB in the first
 // sectors that can be used starting at location 0xc000 on the card.
 
+// @12MHz, this divides down by 120 to run the SPI bus at 100kHz.
+// It might be possible later to remove the clock divide when reading
+// sectors.
+
 module sd_card
 (
   input [23:0] address,
@@ -19,6 +23,8 @@ module sd_card
   output reg spi_cs,
   output reg spi_clk,
   output reg spi_do,
+  //output [15:0] debug,
+  output reg [7:0] load_count,
   input  spi_di,
   input  enable,
   input  clk,
@@ -29,13 +35,14 @@ parameter STATE_INIT         = 0;
 parameter STATE_SEND_RESET   = 1;
 parameter STATE_SEND_INIT    = 2;
 parameter STATE_CLOCK_0      = 3;
-parameter STATE_CLOCK_1      = 4;
-parameter STATE_IDLE         = 5;
-parameter STATE_SD_COMMAND   = 6;
-parameter STATE_START_SECTOR = 7;
-parameter STATE_READ_SECTOR  = 8;
-
-parameter STATE_FINISH       = 9;
+parameter STATE_CLOCK_0A     = 4;
+parameter STATE_CLOCK_1      = 5;
+parameter STATE_CLOCK_1A     = 6;
+parameter STATE_IDLE         = 7;
+parameter STATE_SD_COMMAND   = 8;
+parameter STATE_START_SECTOR = 9;
+parameter STATE_READ_SECTOR  = 10;
+parameter STATE_FINISH       = 11;
 
 reg [7:0] memory [511:0];
 reg [3:0] state = STATE_INIT;
@@ -51,8 +58,9 @@ reg [3:0] init_count;
 reg [7:0] rx_buffer;
 reg [7:0] tx_buffer;
 reg [2:0] bit_count;
+reg [5:0] bit_delay;
 
-reg [15:0] current_page = 16'h8000;;
+reg [15:0] current_page;
 wire [14:0] page;
 assign page = address[23:9];
 
@@ -61,6 +69,7 @@ always @(posedge clk) begin
     busy       <= 0;
     spi_cs     <= 1;
     init_count <= 10;
+    load_count <= 0;
     current_page <= 16'h8000;
     state <= STATE_INIT;
   end else if (enable == 1) begin
@@ -98,9 +107,10 @@ always @(posedge clk) begin
 
             cmd_return_state <= STATE_SEND_RESET;
 
-            if (cmd_count == 8) begin
+            if (cmd_count[3] == 1) begin
               if (rx_buffer == 8'h01)
                 state <= STATE_SEND_INIT;
+
 
               cmd_count <= 0;
               spi_cs    <= 1;
@@ -120,7 +130,7 @@ always @(posedge clk) begin
 
             cmd_return_state <= STATE_SEND_INIT;
 
-            if (cmd_count == 8) begin
+            if (cmd_count[3] == 1) begin
               if (rx_buffer[0] == 1'b0) begin
                 state <= STATE_IDLE;
                 //busy  <= 0;
@@ -138,22 +148,40 @@ always @(posedge clk) begin
           begin
             spi_clk <= 0;
 
-            if (bit_count != 0) rx_buffer <= { rx_buffer[6:0], spi_di };
-
             tx_buffer <= tx_buffer << 1;
             spi_do <= tx_buffer[7];
 
             bit_count <= bit_count + 1;
-            state <= STATE_CLOCK_1;
+            bit_delay <= 0;
+
+            state <= STATE_CLOCK_0A;
+          end
+        STATE_CLOCK_0A:
+          begin
+            bit_delay <= bit_delay + 1;
+
+            if (bit_delay == 60)
+              state <= STATE_CLOCK_1;
           end
         STATE_CLOCK_1:
           begin
             spi_clk <= 1;
 
-            if (bit_count == 0) begin
-              state <= next_state;
-            end else begin
-              state <= STATE_CLOCK_0;
+            rx_buffer <= { rx_buffer[6:0], spi_di };
+            bit_delay <= 0;
+
+            state <= STATE_CLOCK_1A;
+          end
+        STATE_CLOCK_1A:
+          begin
+            bit_delay <= bit_delay + 1;
+
+            if (bit_delay == 60) begin
+              if (bit_count == 0) begin
+                state <= next_state;
+              end else begin
+                state <= STATE_CLOCK_0;
+              end
             end
           end
         STATE_IDLE:
@@ -174,12 +202,13 @@ always @(posedge clk) begin
               next_state       <= STATE_SD_COMMAND;
 
               state <= STATE_SD_COMMAND;
-              //state <= STATE_FINISH;
             end
           end
         STATE_SD_COMMAND:
           begin
-            if (cmd_count == 8) begin
+            next_state <= STATE_SD_COMMAND;
+
+            if (cmd_count[3] == 1) begin
               state <= cmd_return_state;
             end else begin
               tx_buffer <= command[cmd_count];
@@ -199,6 +228,8 @@ always @(posedge clk) begin
             end else begin
               next_state <= STATE_START_SECTOR;
             end
+
+            load_count <= load_count + 1;
 
             state <= STATE_CLOCK_0;
           end
