@@ -18,12 +18,9 @@ start:
   rep #0x10
 
 main:
-  ;lda 0xc000
-  ;lda 0xc005
-  lda.b #1
-  pha
-  ;pld
-  plb
+  ;lda.b #1
+  ;pha
+  ;plb
   lda 0xc000
 
 .if 0

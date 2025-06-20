@@ -3,15 +3,19 @@ NAKEN_INCLUDE=../naken_asm/include
 PROGRAM=w65c832
 SOURCE= \
   src/$(PROGRAM).v \
-  src/flash_rom.v \
   src/memory_bus.v \
   src/peripherals.v \
   src/addressing_mode.v \
   src/ram.v \
   src/reg_mode.v \
   src/rom.v \
+  src/sd_card.v \
   src/spi.v \
   src/uart.v
+
+# flash_rom was tested and working, but now replaced with an SD card.
+NOT_USED= \
+  src/flash_rom.v
 
 default:
 	yosys -q \

@@ -40,12 +40,17 @@ module memory_bus
   input  spi_miso_1,
   output uart_tx_0,
   input  uart_rx_0,
-  output windbond_reset,
-  output windbond_wp,
-  output windbond_di,
-  input  windbond_do,
-  output windbond_clk,
-  output windbond_cs,
+  //output windbond_reset,
+  //output windbond_wp,
+  //output windbond_di,
+  //input  windbond_do,
+  //output windbond_clk,
+  //output windbond_cs,
+  output sd_card_di,
+  input  sd_card_do,
+  output sd_card_clk,
+  output sd_card_cs,
+  //output [15:0] debug,
   input  reset
 );
 
@@ -156,12 +161,25 @@ ram ram_1(
 );
 */
 
-flash_rom flash_rom_0(
-  //.page        (address[23:12]),
-  //.address     (address[11:0]),
+sd_card sd_card_0(
   .address     (address[23:0]),
   .data_out    (flash_rom_data_out),
-  .busy        (flash_rom_busy), 
+  .busy        (flash_rom_busy),
+  .spi_cs      (sd_card_cs),
+  .spi_clk     (sd_card_clk),
+  .spi_do      (sd_card_di),
+  .spi_di      (sd_card_do),
+  //.debug       (debug),
+  .enable      (flash_rom_enable),
+  .clk         (raw_clk),
+  .reset       (reset)
+);
+
+/*
+flash_rom flash_rom_0(
+  .address     (address[23:0]),
+  .data_out    (flash_rom_data_out),
+  .busy        (flash_rom_busy),
   .spi_cs      (windbond_cs),
   .spi_clk     (windbond_clk),
   .spi_do      (windbond_di),
@@ -172,6 +190,7 @@ flash_rom flash_rom_0(
   .clk         (raw_clk),
   .reset       (reset)
 );
+*/
 
 endmodule
 

@@ -17,12 +17,16 @@ module w65c832
   output [3:0] column,
 `endif
   input raw_clk,
-  output windbond_reset,
-  output windbond_wp,
-  output windbond_di,
-  input  windbond_do,
-  output windbond_clk,
-  output windbond_cs,
+  //output windbond_reset,
+  //output windbond_wp,
+  //output windbond_di,
+  //input  windbond_do,
+  //output windbond_clk,
+  //output windbond_cs,
+  output sd_card_di,
+  input  sd_card_do,
+  output sd_card_clk,
+  output sd_card_cs,
   output speaker_p,
   output speaker_m,
   output ioport_0,
@@ -426,6 +430,7 @@ always @(posedge raw_clk) begin
 end
 
 `ifndef TANG_NANO
+
 // Debug: This block simply drives the 8x4 LEDs.
 always @(posedge raw_clk) begin
   case (count[9:7])
@@ -1809,12 +1814,17 @@ memory_bus memory_bus_0(
   .spi_miso_1     (spi_miso_1),
   .uart_tx_0      (uart_tx_0),
   .uart_rx_0      (uart_rx_0),
-  .windbond_reset (windbond_reset),
-  .windbond_wp    (windbond_wp),
-  .windbond_do    (windbond_do),
-  .windbond_di    (windbond_di),
-  .windbond_clk   (windbond_clk),
-  .windbond_cs    (windbond_cs),
+  //.windbond_reset (windbond_reset),
+  //.windbond_wp    (windbond_wp),
+  //.windbond_do    (windbond_do),
+  //.windbond_di    (windbond_di),
+  //.windbond_clk   (windbond_clk),
+  //.windbond_cs    (windbond_cs),
+  .sd_card_do     (sd_card_do),
+  .sd_card_di     (sd_card_di),
+  .sd_card_clk    (sd_card_clk),
+  .sd_card_cs     (sd_card_cs),
+  //.debug          (debug),
   .reset          (mem_bus_reset)
 );
 

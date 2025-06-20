@@ -30,12 +30,18 @@ set_io --warn-no-port spi_clk_1  F14
 # Windbond W25Q128JV 16MB flash memory.
 # do connects to do pin on flash chip and is an input to the w65c832.
 # di connects to di pin on flash chip and is an output from the w65c832.
-set_io --warn-no-port windbond_reset P3
-set_io --warn-no-port windbond_wp    P2
-set_io --warn-no-port windbond_do    P1
-set_io --warn-no-port windbond_di    N1
-set_io --warn-no-port windbond_clk   M1
-set_io --warn-no-port windbond_cs    L1
+# set_io --warn-no-port windbond_reset P3
+# set_io --warn-no-port windbond_wp    P2
+# set_io --warn-no-port windbond_do    P1
+# set_io --warn-no-port windbond_di    N1
+# set_io --warn-no-port windbond_clk   M1
+# set_io --warn-no-port windbond_cs    L1
+
+# SD Card
+set_io --warn-no-port sd_card_do    P1
+set_io --warn-no-port sd_card_di    N1
+set_io --warn-no-port sd_card_clk   M1
+set_io --warn-no-port sd_card_cs    L1
 
 # SPI peripheral 0.
 #set_io --warn-no-port spi_cs_0  J12
