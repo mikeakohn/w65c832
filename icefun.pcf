@@ -38,10 +38,10 @@ set_io --warn-no-port spi_clk_1  F14
 # set_io --warn-no-port windbond_cs    L1
 
 # SD Card
-set_io --warn-no-port sd_card_do    P1
-set_io --warn-no-port sd_card_di    N1
-set_io --warn-no-port sd_card_clk   M1
-set_io --warn-no-port sd_card_cs    L1
+set_io --warn-no-port sd_card_do    P8
+set_io --warn-no-port sd_card_di    P9
+set_io --warn-no-port sd_card_clk   M9
+set_io --warn-no-port sd_card_cs    P10
 
 # SPI peripheral 0.
 #set_io --warn-no-port spi_cs_0  J12
