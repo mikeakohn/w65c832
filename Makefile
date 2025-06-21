@@ -93,6 +93,10 @@ serlcd_tang_nano:
 	naken_asm -l -type bin -o rom.bin test/serlcd_tang_nano.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
+sd_test:
+	naken_asm -l -type bin -o rom.bin test/sd_test.asm
+	python3 tools/bin2txt.py rom.bin > rom.txt
+
 extra_modes:
 	naken_asm -l -type bin -o rom.bin test/extra_modes.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt

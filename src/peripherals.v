@@ -24,7 +24,6 @@ module peripherals
   output ioport_3,
   output ioport_4,
   input button_0,
-  input reset,
   output spi_clk_0,
   output spi_mosi_0,
   input  spi_miso_0,
@@ -33,7 +32,9 @@ module peripherals
   output spi_mosi_1,
   input  spi_miso_1,
   output uart_tx_0,
-  input  uart_rx_0
+  input  uart_rx_0,
+  input [7:0] load_count,
+  input reset
 );
 
 reg [7:0] storage [3:0];
@@ -182,6 +183,7 @@ always @(posedge raw_clk) begin
         6'h10: data_out <= { 1'b0, spi_busy_1 || spi_start_1 };
         6'h11: data_out <= spi_cs_1;
         6'h12: data_out <= spi_divisor_1;
+        6'h13: data_out <= load_count;
       endcase
     end
   end

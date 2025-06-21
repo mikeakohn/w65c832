@@ -111,7 +111,6 @@ always @(posedge clk) begin
               if (rx_buffer == 8'h01)
                 state <= STATE_SEND_INIT;
 
-
               cmd_count <= 0;
               spi_cs    <= 1;
             end else begin
@@ -197,6 +196,8 @@ always @(posedge clk) begin
               command[4] <= 8'h00;
               command[5] <= 8'h00;
 
+              load_count <= load_count + 1;
+
               cmd_count        <= 0;
               cmd_return_state <= STATE_START_SECTOR;
               next_state       <= STATE_SD_COMMAND;
@@ -229,8 +230,6 @@ always @(posedge clk) begin
               next_state <= STATE_START_SECTOR;
             end
 
-            load_count <= load_count + 1;
-
             state <= STATE_CLOCK_0;
           end
         STATE_READ_SECTOR:
@@ -247,7 +246,6 @@ always @(posedge clk) begin
         STATE_FINISH:
           begin
             current_page <= { 1'b0, page };
-            busy   <= 0;
             spi_cs <= 1;
             spi_do <= 0;
             state  <= STATE_IDLE;

@@ -60,6 +60,8 @@ wire [7:0] peripherals_data_out;
 //wire [7:0] block_ram_data_out;
 wire [7:0] flash_rom_data_out;
 
+wire [7:0] load_count;
+
 //reg [7:0] ram_data_in;
 //reg [7:0] peripherals_data_in;
 
@@ -139,7 +141,6 @@ peripherals peripherals_0(
   .ioport_3     (ioport_3),
   .ioport_4     (ioport_4),
   .button_0     (button_0),
-  .reset        (reset),
   .spi_clk_0    (spi_clk_0),
   .spi_mosi_0   (spi_mosi_0),
   .spi_miso_0   (spi_miso_0),
@@ -148,7 +149,9 @@ peripherals peripherals_0(
   .spi_mosi_1   (spi_mosi_1),
   .spi_miso_1   (spi_miso_1),
   .uart_tx_0    (uart_tx_0),
-  .uart_rx_0    (uart_rx_0)
+  .uart_rx_0    (uart_rx_0),
+  .load_count   (load_count),
+  .reset        (reset)
 );
 
 /*
@@ -170,6 +173,7 @@ sd_card sd_card_0(
   .spi_do      (sd_card_di),
   .spi_di      (sd_card_do),
   //.debug       (debug),
+  .load_count  (load_count),
   .enable      (flash_rom_enable),
   .clk         (raw_clk),
   .reset       (reset)

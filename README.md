@@ -392,6 +392,7 @@ The peripherals area contain the following:
 * 0x8010: SPI_CTRL1: bit 1: SPI start, bit 0: busy
 * 0x8011: SPI_IO1: bit 0: cs
 * 0x8012: SPI_DIVSOR1: 0 to 8
+* 0x8013: SD card load count (number of times a page was loaded)
 
 The UART runs only at 9600 baud. Reading from UART RX clears rx_ready.
 

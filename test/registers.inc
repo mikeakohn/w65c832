@@ -17,6 +17,7 @@ SPI_RX_1   equ 0x800f
 SPI_CTL_1  equ 0x8010
 SPI_IO_1   equ 0x8011
 SPI_DIV_1  equ 0x8012
+LOAD_COUNT equ 0x8013
 
 ;; Bits in SPI_CTL.
 SPI_BUSY   equ 1
