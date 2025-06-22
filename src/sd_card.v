@@ -65,6 +65,8 @@ reg [7:0] tx_buffer;
 reg [2:0] bit_count;
 reg [5:0] bit_delay;
 
+reg [5:0] bit_delay_max;
+
 reg [15:0] current_page;
 wire [14:0] page;
 assign page = address[23:9];
@@ -79,6 +81,7 @@ always @(posedge clk) begin
     init_count <= 10;
     load_count <= 0;
     current_page <= 16'h8000;
+    bit_delay_max <= 60;
     state <= STATE_INIT;
   end else if (enable == 1) begin
     if (current_page == { 1'b0, page }) begin
@@ -167,7 +170,7 @@ always @(posedge clk) begin
           begin
             bit_delay <= bit_delay + 1;
 
-            if (bit_delay == 60)
+            if (bit_delay == bit_delay_max)
               state <= STATE_CLOCK_1;
           end
         STATE_CLOCK_1:
@@ -183,7 +186,7 @@ always @(posedge clk) begin
           begin
             bit_delay <= bit_delay + 1;
 
-            if (bit_delay == 60) begin
+            if (bit_delay == bit_delay_max) begin
               if (bit_count == 0) begin
                 state <= next_state;
               end else begin
@@ -196,6 +199,8 @@ always @(posedge clk) begin
             if (enable) begin
               busy      <= 1;
               spi_cs    <= 0;
+
+              bit_delay_max <= 0;
 
               command[0] <= 8'h51;
               command[1] <= 8'h00;
