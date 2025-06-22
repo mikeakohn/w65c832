@@ -5,7 +5,7 @@
 //   Board: iceFUN iCE40 HX8K
 // License: MIT
 //
-// Copyright 2024 by Michael Kohn
+// Copyright 2024-2025 by Michael Kohn
 
 // This creates 512 bytes of ROM on the FPGA itself and pages in the
 // memory from an SD card. There is a maxiumum of 16MB in the first
@@ -14,6 +14,11 @@
 // @12MHz, this divides down by 120 to run the SPI bus at 100kHz.
 // It might be possible later to remove the clock divide when reading
 // sectors.
+
+// This assumes the block size of the SD card is 512 bytes.
+// It is also very minimal: Only sends commands for RESET and INIT
+// on the card. When reading a block it doesn't bother reading the
+// CRC.
 
 module sd_card
 (
@@ -63,6 +68,9 @@ reg [5:0] bit_delay;
 reg [15:0] current_page;
 wire [14:0] page;
 assign page = address[23:9];
+
+//assign debug[15:8] = command[3];
+//assign debug[7:0] = { spi_cs, state };
 
 always @(posedge clk) begin
   if (reset == 1) begin
@@ -236,6 +244,10 @@ always @(posedge clk) begin
           begin
             memory[mem_count] <= rx_buffer;
 
+            // NOTE: Without setting tx_buffer on SPI, the card will error
+            // out reading any more blocks.
+            tx_buffer <= 8'hff;
+
             if (mem_count == 511)
               state <= STATE_FINISH;
             else
@@ -243,6 +255,21 @@ always @(posedge clk) begin
 
             mem_count <= mem_count + 1;
           end
+/*
+        STATE_READ_CRC:
+          begin
+            next_state <= STATE_READ_CRC;
+
+            tx_buffer <= 8'hff;
+
+            if (mem_count == 2)
+              state <= STATE_FINISH;
+            else
+              state <= STATE_CLOCK_0;
+
+            mem_count <= mem_count + 1;
+          end
+*/
         STATE_FINISH:
           begin
             current_page <= { 1'b0, page };

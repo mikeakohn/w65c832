@@ -39,13 +39,25 @@ main:
 
   jsr clear_screen
 
-  lda 0xc000
+  lda 0xc1ff
   jsr spi_send_data
-  lda 0xc001
-  jsr spi_send_data
-  lda 0xc002
-  jsr spi_send_data
+  ;lda 0xc001
+  ;jsr spi_send_data
+  ;lda 0xc002
+  ;jsr spi_send_data
+  ;lda 0xc200
+  ;jsr spi_send_data
+  ;lda 0x10000
+  ;jsr spi_send_data
+  ;lda 0xc000
+  ;jsr spi_send_data
   lda 0x10000
+  jsr spi_send_data
+  lda 0x10205
+  jsr spi_send_data
+  lda 0x10206
+  jsr spi_send_data
+  lda 0x10207
   jsr spi_send_data
 
   lda.b #' '
