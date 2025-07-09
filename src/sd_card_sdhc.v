@@ -258,6 +258,7 @@ always @(posedge clk) begin
               spi_return_state <= STATE_START_SECTOR;
             end
 
+            tx_buffer <= 8'hff;
             state <= STATE_CLOCK_0;
           end
         STATE_READ_SECTOR:

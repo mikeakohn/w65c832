@@ -71,8 +71,8 @@ reg [15:0] current_page;
 wire [14:0] page;
 assign page = address[23:9];
 
-//assign debug[15:8] = command[3];
-//assign debug[7:0] = { spi_cs, state };
+//assign debug[15:8] = tx_buffer;
+//assign debug[7:0] = { spi_cs, cmd_return_state };
 
 always @(posedge clk) begin
   if (reset == 1) begin
@@ -189,6 +189,7 @@ always @(posedge clk) begin
             if (bit_delay == bit_delay_max) begin
               if (bit_count == 0) begin
                 state <= next_state;
+                spi_clk <= 0;
               end else begin
                 state <= STATE_CLOCK_0;
               end
@@ -223,6 +224,7 @@ always @(posedge clk) begin
             next_state <= STATE_SD_COMMAND;
 
             if (cmd_count[3] == 1) begin
+              tx_buffer <= 8'hff;
               state <= cmd_return_state;
             end else begin
               tx_buffer <= command[cmd_count];
@@ -243,6 +245,7 @@ always @(posedge clk) begin
               next_state <= STATE_START_SECTOR;
             end
 
+            tx_buffer <= 8'hff;
             state <= STATE_CLOCK_0;
           end
         STATE_READ_SECTOR:
