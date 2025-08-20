@@ -50,6 +50,10 @@ old:
 program:
 	iceFUNprog $(PROGRAM).bin
 
+bootloader:
+	naken_asm -l -type bin -o rom.bin test/bootloader.asm
+	python3 tools/bin2txt.py rom.bin > rom.txt
+
 blink:
 	naken_asm -l -type bin -o rom.bin test/blink.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
@@ -101,8 +105,12 @@ extra_modes:
 	naken_asm -l -type bin -o rom.bin test/extra_modes.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
-bootloader:
-	naken_asm -l -type bin -o rom.bin test/bootloader.asm
+multiple_move:
+	naken_asm -l -type bin -o rom.bin test/multiple_move.asm
+	python3 tools/bin2txt.py rom.bin > rom.txt
+
+qa_1:
+	naken_asm -l -type bin -o rom.bin -I ../test qa/test_1.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
 clean:

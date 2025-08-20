@@ -67,3 +67,10 @@ LED0       equ 1
   rep #0x30
 .endm
 
+.macro SET_M16_X16_FULL
+  bit.b #0xc0
+  clc
+  xce
+  sep #0x30
+.endm
+

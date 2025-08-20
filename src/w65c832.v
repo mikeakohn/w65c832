@@ -138,6 +138,7 @@ reg wb;
 reg is_sub;
 reg affects_c;
 reg affects_v;
+reg affects_n;
 
 // Used for MVP, MVN.
 reg [7:0] block_source;
@@ -528,6 +529,7 @@ always @(posedge clk) begin
           is_sub <= 0;
           affects_v <= 0;
           affects_c <= 0;
+          affects_n <= 1;
           wb <= 1;
           wb_state <= STATE_WRITEBACK_A;
           long_branch <= 0;
@@ -1085,7 +1087,9 @@ always @(posedge clk) begin
             endcase
 
             wb <= 0;
-            affects_v <= 1;
+            affects_n <= 0;
+            flags[FLAG_N] <= source[7];
+            flags[FLAG_V] <= source[6];
           end else if (aaa == OP_CPY || aaa == OP_LDY || aaa == OP_STY) begin
             case (size_x)
               SIZE_8:  temp <= { 24'b0, reg_y[7:0]  };
@@ -1116,7 +1120,7 @@ always @(posedge clk) begin
       STATE_EXECUTE_00_1:
         begin
           case (aaa)
-            OP_BIT:begin result <= temp & source; wb <= 0; end
+            OP_BIT: begin result <= temp & source; wb <= 0; end
             //OP_JMP: result <= temp & source;
             //OP_JMP_IND: result <= temp ^ source;
             OP_STY: result <= temp;
@@ -1157,6 +1161,9 @@ always @(posedge clk) begin
             OP_STA:
               if (bbb == 3'b010) begin
                 // OP_BIT_IMM: bit #imm
+                flags[FLAG_N] <= source[7];
+                flags[FLAG_V] <= source[6];
+                affects_n <= 0;
                 wb <= 0;
                 result <= temp & source;
               end else begin
@@ -1259,7 +1266,7 @@ always @(posedge clk) begin
                 if (wb == 1) reg_a[7:0] <= result[7:0];
                 if (affects_c) flags[FLAG_C] <= result[8];
                 flags[FLAG_Z] <= result[7:0] == 0;
-                flags[FLAG_N] <= result[7];
+                if (affects_n) flags[FLAG_N] <= result[7];
                 if (affects_v) flags[FLAG_V] <= temp[7] == (source[7] ^ is_sub) && result[7] != temp[7];
               end
             SIZE_16:
@@ -1267,7 +1274,7 @@ always @(posedge clk) begin
                 if (wb == 1) reg_a[15:0] <= result[15:0];
                 if (affects_c) flags[FLAG_C] <= result[16];
                 flags[FLAG_Z] <= result[15:0] == 0;
-                flags[FLAG_N] <= result[15];
+                if (affects_n) flags[FLAG_N] <= result[15];
                 if (affects_v) flags[FLAG_V] <= temp[15] == (source[15] ^ is_sub) && result[15] != temp[15];
               end
             SIZE_32:
@@ -1275,7 +1282,7 @@ always @(posedge clk) begin
                 if (wb == 1) reg_a[31:0] <= result[31:0];
                 if (affects_c) flags[FLAG_C] <= result[32];
                 flags[FLAG_Z] <= result[31:0] == 0;
-                flags[FLAG_N] <= result[31];
+                if (affects_n) flags[FLAG_N] <= result[31];
                 if (affects_v) flags[FLAG_V] <= temp[31] == (source[31] ^ is_sub) && result[31] != temp[31];
               end
           endcase

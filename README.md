@@ -358,6 +358,19 @@ Other 65C816 Instructions
     xce 0xfb - 111 110 11  Exchange Carry and Emulation Bits
     xfe 0xfb - 111 110 11  Exchange Carry and Emulation Bits
 
+65C832 Notes
+------------
+
+The mvn/mvp instructions originally had the syntax:
+
+    mvn {src bits [23:16]}, {dst bits [23:16]}
+
+When the instruction finishes, {dst bits [23:16]} moves into dbr.
+
+In 32 bit mode the mvn and mvp instructions don't have operands and
+Index X and Index Y are simply used to point to addresses with out
+modification of a dbr register. The dbr register is not updated.
+
 Memory Map
 ----------
 
