@@ -110,7 +110,11 @@ multiple_move:
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
 qa_1:
-	naken_asm -l -type bin -o rom.bin -I ../test qa/test_1.asm
+	naken_asm -l -type bin -o rom.bin -I test -I qa qa/test_1.asm
+	python3 tools/bin2txt.py rom.bin > rom.txt
+
+qa_move:
+	naken_asm -l -type bin -o rom.bin -I test -Iqa qa/test_move.asm
 	python3 tools/bin2txt.py rom.bin > rom.txt
 
 clean:

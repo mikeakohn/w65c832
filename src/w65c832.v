@@ -835,7 +835,7 @@ always @(posedge clk) begin
                       OP_PHK: begin state <= STATE_PUSH_0; result <= pbr; end
                       OP_RTL: state <= STATE_POP_0;
                       OP_PHB:
-                        begin state <= STATE_PUSH_0; result <= reg_a[15:7]; end
+                        begin state <= STATE_PUSH_0; result <= dbr; end
                       OP_PLB: state <= STATE_POP_0;
                       OP_WAI:
                         if (flag_pending_interrupt == 1) state <= STATE_FETCH_OP_0;

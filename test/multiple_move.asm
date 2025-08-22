@@ -9,13 +9,13 @@ start:
   xce
 
   ; Set 65C832 mode.
-  clc
-  clv
-  xce
+  ;clc
+  ;clv
+  ;xce
 
   ; Set A to 8-bit.
   ; Set X/Y to 32 bit.
-  SET_M8_X32
+  SET_M8_X32_FULL
 
 main:
   lda.b #7
@@ -30,25 +30,14 @@ main:
   lda.b #' '
   jsr spi_send_data
 
-  lda.b #0x80
-  sta 0
-
-  clv
-  cld
-  ;bit.b #0x80
-  bit.b 0x00
-  php
-  pla
-  brk
-
   SET_M16_X16_FULL
 
-  lda.w #3
-  ldx.w 0x1000
-  ldy.w 0x0000
-  mvp 0x10, 0x00
+  lda.w #0
+  ldx.w #0x1000
+  ldy.w #0x0000
+  mvp 0x01, 0x00
 
-  plp
+  SET_M8_X32_FULL
 
   jsr print_accum
 

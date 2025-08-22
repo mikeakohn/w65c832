@@ -45,6 +45,15 @@ LED0       equ 1
   rep #0x10
 .endm
 
+.macro SET_M8_X32_FULL
+  ; Set 65C832 mode.
+  clc
+  clv
+  xce
+  sep #0x20
+  rep #0x10
+.endm
+
 .macro SET_M32_X32
   rep #0x30
 .endm
@@ -68,9 +77,10 @@ LED0       equ 1
 .endm
 
 .macro SET_M16_X16_FULL
-  bit.b #0xc0
+  ;bit.b #0x40
+  sep #0x40
   clc
   xce
-  sep #0x30
+  rep #0x30
 .endm
 

@@ -368,7 +368,7 @@ The mvn/mvp instructions originally had the syntax:
 When the instruction finishes, {dst bits [23:16]} moves into dbr.
 
 In 32 bit mode the mvn and mvp instructions don't have operands and
-Index X and Index Y are simply used to point to addresses with out
+Index X (src) and Index Y (dst) are simply used to point to addresses with out
 modification of a dbr register. The dbr register is not updated.
 
 Memory Map

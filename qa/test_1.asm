@@ -1,5 +1,8 @@
 .65832
 
+.include "test_macros.inc"
+.include "registers.inc"
+
 .org 0x4000
 start:
   ; Set 65C816 mode.
@@ -19,21 +22,15 @@ start:
 
   lda.b #0x01
   cmp.b #0x01
-  beq pass_1
-  jsr error
-pass_1: 
+  CHECK_EQUAL
 
   bit.b #0xc0
   php
   pla
   bit.b #0x80
-  bne pass_2
-  jsr error
-pass_2: 
+  CHECK_NOT_ZERO
   bit.b #0x40
-  bne pass_3
-  jsr error
-pass_3: 
+  CHECK_NOT_ZERO
 
 loop:
   ;; LED on.
