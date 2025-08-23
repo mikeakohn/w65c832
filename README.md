@@ -218,7 +218,7 @@ Other Instructions
     pei 0xd4 - 110 101 00  Push Effective Indirect Address
     pea 0xf4 - 111 101 00  Push Effective Absolute Address
     jml 0x5c - 010 111 00  Jump Long Absolute (jmp.l)
-    jml 0xdc - 110 111 00  Jump Long Indirect
+    jml 0xdc - 110 111 00  Jump Long Indirect [address]
 
     stz 0x64 - 011 001 00  Store Zero Direct Page
     stz 0x74 - 011 101 00  Store Zero Direct Page,X
@@ -366,6 +366,9 @@ The mvn/mvp instructions originally had the syntax:
     mvn {src bits [23:16]}, {dst bits [23:16]}
 
 When the instruction finishes, {dst bits [23:16]} moves into dbr.
+
+    mvn causes X/Y to increment on every byte copied.
+    mvp causes X/Y to decrement on every byte copied.
 
 In 32 bit mode the mvn and mvp instructions don't have operands and
 Index X (src) and Index Y (dst) are simply used to point to addresses with out

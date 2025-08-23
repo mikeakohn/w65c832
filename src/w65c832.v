@@ -1664,7 +1664,7 @@ always @(posedge clk) begin
           mem_bus_enable <= 0;
           mem_write_enable <= 0;
 
-          if (aaa == OP_MVN) begin
+          if (bbb == 3'b101) begin
             reg_x[15:0] <= reg_x[15:0] + 1;
             reg_y[15:0] <= reg_y[15:0] + 1;
           end else begin

@@ -36,7 +36,7 @@ start:
   lda.w #1
   ldx.w #0x1000
   ldy.w #0x0000
-  mvp 0x01, 0x00
+  mvn 0x01, 0x00
   SET_M8_X32_FULL
 
   cmp.b #0xff
@@ -63,6 +63,38 @@ start:
   cmp.b #0x00
   CHECK_EQUAL
 
+  ;; Move 2 bytes from SD card (upper memory) to lower.
+  SET_M16_X16_FULL
+  lda.w #1
+  ldx.w #0x100b
+  ldy.w #0x0006
+  mvp 0x01, 0x00
+  SET_M8_X32_FULL
+
+  cmp.b #0xff
+  CHECK_EQUAL
+  cpx.l #0x1009
+  CHECK_EQUAL
+  cpy.l #0x0004
+  CHECK_EQUAL
+
+  phb
+  pla
+  cmp.b #0x00
+  CHECK_EQUAL
+
+  lda 0x6 
+  cmp.b #0x31
+  CHECK_EQUAL
+
+  lda 0x5 
+  cmp.b #0x30
+  CHECK_EQUAL
+
+  lda 0x4 
+  cmp.b #0x00
+  CHECK_EQUAL
+
 loop:
   ;; LED on.
   lda.b #0x01
@@ -84,6 +116,7 @@ delay_loop:
 error:
   lda.b #0x01
   sta 0x8008
+  SET_M16_X16_FULL
   pla
   brk
 
