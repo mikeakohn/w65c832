@@ -1617,10 +1617,16 @@ always @(posedge clk) begin
         end
       STATE_MOVE_BLOCK_0:
         begin
-          mem_bus_enable <= 1;
-          mem_address <= { pbr, pc };
-          pc <= pc + 1;
-          state <= STATE_MOVE_BLOCK_1;
+          if (size_x == SIZE_8) begin reg_x[15:8] <= 0; reg_y[15:8] <= 0; end
+
+          if (size_x == SIZE_32) begin
+            state <= STATE_MOVE_BLOCK_2;
+          end else begin
+            mem_bus_enable <= 1;
+            mem_address <= { pbr, pc };
+            pc <= pc + 1;
+            state <= STATE_MOVE_BLOCK_1;
+          end
         end
       STATE_MOVE_BLOCK_1:
         begin
@@ -1642,7 +1648,11 @@ always @(posedge clk) begin
         end
       STATE_MOVE_BLOCK_2:
         begin
-          mem_address <= { block_source, reg_x[15:0] };
+          if (size_x == SIZE_32)
+            mem_address <= { reg_x };
+          else
+            mem_address <= { block_source, reg_x[15:0] };
+
           mem_bus_enable <= 1;
           state <= STATE_MOVE_BLOCK_3;
         end
@@ -1654,7 +1664,11 @@ always @(posedge clk) begin
         end
       STATE_MOVE_BLOCK_4:
         begin
-          mem_address <= { dbr, reg_y[15:0] };
+          if (size_x == SIZE_32)
+            mem_address <= { reg_y };
+          else
+            mem_address <= { dbr, reg_y[15:0] };
+
           mem_bus_enable <= 1;
           mem_write_enable <= 1;
           state <= STATE_MOVE_BLOCK_5;
@@ -1672,7 +1686,10 @@ always @(posedge clk) begin
             reg_y[15:0] <= reg_y[15:0] - 1;
           end
 
-          reg_a[15:0] <= reg_a[15:0] - 1;
+          if (size_x == SIZE_32)
+            reg_a <= reg_a - 1;
+          else
+            reg_a[15:0] <= reg_a[15:0] - 1;
 
           if (reg_a[15:0] == 0)
             state <= STATE_FETCH_OP_0;

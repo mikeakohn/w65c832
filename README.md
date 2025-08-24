@@ -369,6 +369,13 @@ When the instruction finishes, {dst bits [23:16]} moves into dbr.
 
     mvn causes X/Y to increment on every byte copied.
     mvp causes X/Y to decrement on every byte copied.
+    Index X is src.
+    Index Y is dst.
+
+In 8 bit M mode the full 16 bit A register is used as the count.
+
+In 8 bit X mode the upper 8 bits of X and Y are cleared before the
+operation starts.
 
 In 32 bit mode the mvn and mvp instructions don't have operands and
 Index X (src) and Index Y (dst) are simply used to point to addresses with out

@@ -31,6 +31,7 @@ start:
   cmp.b #0x50
   CHECK_EQUAL
 
+  ;; Test 1: 16 bit mvn.
   ;; Move 2 bytes from SD card (upper memory) to lower.
   SET_M16_X16_FULL
   lda.w #1
@@ -63,6 +64,7 @@ start:
   cmp.b #0x00
   CHECK_EQUAL
 
+  ;; Test 2: 16 bit mvp.
   ;; Move 2 bytes from SD card (upper memory) to lower.
   SET_M16_X16_FULL
   lda.w #1
@@ -83,15 +85,61 @@ start:
   cmp.b #0x00
   CHECK_EQUAL
 
-  lda 0x6 
+  lda 0x6
   cmp.b #0x31
   CHECK_EQUAL
 
-  lda 0x5 
+  lda 0x5
   cmp.b #0x30
   CHECK_EQUAL
 
-  lda 0x4 
+  lda 0x4
+  cmp.b #0x00
+  CHECK_EQUAL
+
+  ;; Test 3: 32 bit mvn.
+  ;; Set dbr to 01 to prove it's not used in 32 bit mode.
+  lda.b #0x02
+  pha
+  plb
+
+  SET_M32_X32_FULL
+  lda.l #1
+  ldx.l #0x11900
+  ldy.l #0x00010
+  ;; Assembler doesn't support mvp/mvn with no operands yet.
+  ;mvn
+  .db 0x54
+
+  cmp.l #0xffff_ffff
+  CHECK_EQUAL
+  cpx.l #0x11902
+  CHECK_EQUAL
+  cpy.l #0x00012
+  CHECK_EQUAL
+
+  SET_M8_X32_FULL
+
+  ;; Check dbr didn't change from mvn.
+  phb
+  pla
+  cmp.b #0x02
+  CHECK_EQUAL
+
+  ;; Set dbr back to 0.
+  lda.b #0x00
+  pha
+  plb
+
+  lda 0x10
+  cmp.b #0x36
+  CHECK_EQUAL
+
+  lda 0x11
+  cmp.b #0x37
+  CHECK_EQUAL
+
+  lda 0x12
   cmp.b #0x00
   CHECK_EQUAL
 
