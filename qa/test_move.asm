@@ -143,6 +143,41 @@ start:
   cmp.b #0x00
   CHECK_EQUAL
 
+  ;; Test 4: 8 bit mvn.
+  ;; Move 2 bytes from SD card (upper memory) to lower.
+  SET_M32_X32_FULL
+  ldx.l #0
+  lda.l #1
+  SET_M8_X8
+  ldx.b #0x000a
+  ldy.b #0x0030
+  mvn 0x01, 0x00
+  SET_M8_X32_FULL
+
+  cmp.b #0xff
+  CHECK_EQUAL
+  cpx.l #0x000c
+  CHECK_EQUAL
+  cpy.l #0x0032
+  CHECK_EQUAL
+
+  phb
+  pla
+  cmp.b #0x00
+  CHECK_EQUAL
+
+  lda 0x30
+  cmp.b #0x30
+  CHECK_EQUAL
+
+  lda 0x31
+  cmp.b #0x31
+  CHECK_EQUAL
+
+  lda 0x32
+  cmp.b #0x00
+  CHECK_EQUAL
+
 loop:
   ;; LED on.
   lda.b #0x01

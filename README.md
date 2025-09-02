@@ -371,15 +371,31 @@ When the instruction finishes, {dst bits [23:16]} moves into dbr.
     mvp causes X/Y to decrement on every byte copied.
     Index X is src.
     Index Y is dst.
+     
+    The mvn instruction increments X/Y on every byte copy.
+    The mvp instruction decrements X/Y on every byte copy.
+
+In 16 bit mode X, Y, and A are 16 bit. The dbr is used to
+access banks over 16 bit (24 bit address). After the operation
+completes, the dbr is updated to be the destination bank.
 
 In 8 bit M mode the full 16 bit A register is used as the count.
-
-In 8 bit X mode the upper 8 bits of X and Y are cleared before the
-operation starts.
+The upper 8 bits of X and Y are cleared before the operation starts.
+The dbr register is still used to select a bank and is modified
+after the operation completes.
 
 In 32 bit mode the mvn and mvp instructions don't have operands and
-Index X (src) and Index Y (dst) are simply used to point to addresses with out
-modification of a dbr register. The dbr register is not updated.
+Index X (src) and Index Y (dst) are simply used to point to addresses
+without modification of a dbr register. The dbr register is not updated.
+The full A register is used for the count.
+
+Examples:
+
+    mvn 0x01, 0x02   (In 8 or 16 bit X/Y mode)
+    mvp              (32 bit X/Y mode)
+
+If the CPU is in 32 bit X/Y mode and operands are given to the instruction,
+the CPU will interperet the operands as instructions and probably crash.
 
 Memory Map
 ----------
