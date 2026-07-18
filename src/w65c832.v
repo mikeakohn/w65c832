@@ -436,12 +436,12 @@ end
 always @(posedge raw_clk) begin
   case (count[9:7])
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~dbr[7:0];   end
-    3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_a[7:0]; end
+    3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_y[7:0]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_a[23:16]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_x[7:0]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~ea[23:16]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~sp[7:0];   end
-    3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_a[15:8]; end
+    3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_y[15:8]; end
     //3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_a[31:24]; end
     //3'b000:  begin column_value <= 4'b0111; leds_value <= ~reg_x[7:0];   end
     //3'b010:  begin column_value <= 4'b1011; leds_value <= ~reg_x[15:8]; end
@@ -623,6 +623,12 @@ always @(posedge clk) begin
                       next_state <= STATE_CALC_PER;
                       state <= STATE_FETCH_IMMEDIATE_0;
                     end
+                  OP_LDY:
+                    begin
+                      // ldy addr, x (101)
+                      next_state <= STATE_EXECUTE_00_0;
+                      state <= STATE_FETCH_ABSOLUTE_0;
+                    end
                 endcase
               end else if (bbb == 3'b110) begin
                 // CLC, SEC, CLI, SEI, TYA, CLV, CLD, SED.
@@ -713,7 +719,9 @@ always @(posedge clk) begin
               end
             2'b10:
               begin
-                if (bbb == 3'b000 && aaa != 3'b101 || instruction[7:2] == 6'b100_000) begin
+                if (bbb == 3'b000 && aaa != 3'b101 ||
+                    instruction[7:2] == 6'b100_000) begin
+                  //  bbb == imm    aaa != ldx    or  instruction == stx #
                   // stx 100_000_10
                   // ldx 101_000_10
                   // stx 0x100  8e  100 011 10
@@ -742,6 +750,7 @@ always @(posedge clk) begin
                     OP_SEP: state <= STATE_SET_FLAGS_0;
                   endcase
                 end else if (bbb == 3'b010 && aaa[2] == 1) begin
+                  // bbb == accumulator and aaa == (stx, ldx, dec, inc).
                   case (aaa)
                     OP_TXA: begin result <= reg_x; state <= STATE_WRITEBACK_A; end
                     OP_TAX: begin result <= reg_a; state <= STATE_WRITEBACK_X; end
@@ -783,6 +792,7 @@ always @(posedge clk) begin
 
                   size_imm <= size_x;
                 end else if (bbb == 3'b111) begin
+                  // bbb == absolute, X.
                   if (aaa == OP_STZ_2) begin
                     // stz absolute, x
                     size_imm <= size_m;
@@ -792,7 +802,7 @@ always @(posedge clk) begin
                     state <= STATE_ERROR;
                   end
                 end else if (bbb == 3'b100) begin
-                  // Indirect addressing mode (dp).
+                  // bbb == Indirect addressing mode (dp).
                   state <= STATE_FETCH_INDIRECT_0;
                   next_state <= STATE_EXECUTE_01_0;
                 end else begin
@@ -1601,7 +1611,7 @@ always @(posedge clk) begin
           case (immediate_count)
             1: flags    <= mem_read;
             2: pc[7:0]  <= mem_read;
-            3: pc[15:0] <= mem_read;
+            3: pc[15:8] <= mem_read;
             4: pbr[7:0] <= mem_read;
           endcase
 
